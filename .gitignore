@@ -1,0 +1,16 @@
+.DS_Store
+.tools/
+*.log
+.env
+.env.*
+
+# backend
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/data/*.db
+backend/.pytest_cache/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
