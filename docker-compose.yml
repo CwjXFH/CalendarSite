@@ -2,9 +2,9 @@ services:
   backend:
     build: ./backend
     volumes:
-      - calendar-data:/app/data
+      - calendar-data:/src/data
     expose:
-      - "8000"
+      - "9000"
     restart: unless-stopped
 
   frontend:
