@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query, Request, Response
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -12,13 +12,15 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.get("/health", response_model=HealthResponse)
 @limiter.limit("120/minute")
-async def health(request: Request) -> HealthResponse:
+async def health(request: Request, response: Response) -> HealthResponse:
+    response.headers["Cache-Control"] = "no-store"
     return HealthResponse(status="ok")
 
 
 @router.get("/meta", response_model=MetaResponse)
 @limiter.limit("120/minute")
-async def meta(request: Request) -> MetaResponse:
+async def meta(request: Request, response: Response) -> MetaResponse:
+    response.headers["Cache-Control"] = "public, max-age=86400"
     return MetaResponse(minYear=MIN_YEAR, maxYear=max_year())
 
 
@@ -26,6 +28,7 @@ async def meta(request: Request) -> MetaResponse:
 @limiter.limit("60/minute")
 async def calendar(
     request: Request,
+    response: Response,
     year: int = Query(..., description="公历年"),
     month: int = Query(..., ge=1, le=12, description="公历月"),
 ) -> CalendarResponse:
@@ -38,4 +41,5 @@ async def calendar(
                 "message": f"year must be between {MIN_YEAR} and {upper}",
             },
         )
+    response.headers["Cache-Control"] = "public, max-age=86400"
     return get_calendar_cached(year, month)

@@ -21,13 +21,6 @@ FESTIVAL_SHORT: dict[str, str] = {
 }
 
 
-def get_lunar_year_month(year: int, month: int, day: int) -> str:
-    """返回如「丙午年六月」的农历年月文案。"""
-    solar = Solar.fromYmd(year, month, day)
-    lunar = solar.getLunar()
-    return f"{lunar.getYearInGanZhi()}年{lunar.getMonthInChinese()}月"
-
-
 def get_day_info(year: int, month: int, day: int) -> dict[str, str | None]:
     solar = Solar.fromYmd(year, month, day)
     lunar = solar.getLunar()

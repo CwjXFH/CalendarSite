@@ -9,6 +9,7 @@ def test_health() -> None:
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_meta() -> None:
@@ -17,6 +18,7 @@ def test_meta() -> None:
     data = response.json()
     assert data["minYear"] == 1900
     assert data["maxYear"] >= 2026
+    assert response.headers["cache-control"] == "public, max-age=86400"
 
 
 def test_calendar_month() -> None:
@@ -28,9 +30,12 @@ def test_calendar_month() -> None:
     assert data["lunarYearMonth"]
     assert "年" in data["lunarYearMonth"] and data["lunarYearMonth"].endswith("月")
     assert len(data["days"]) == 42
+    mid = next(d for d in data["days"] if d["date"] == "2026-02-15")
+    assert data["lunarYearMonth"] == mid["lunarYearMonth"]
     spring = next(d for d in data["days"] if d["date"] == "2026-02-17")
     assert spring["festival"] == "春节"
     assert spring["isLegalHoliday"] is True
+    assert response.headers["cache-control"] == "public, max-age=86400"
 
 
 def test_invalid_year() -> None:

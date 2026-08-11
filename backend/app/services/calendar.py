@@ -6,7 +6,7 @@ from functools import lru_cache
 
 from app.schemas import CalendarResponse, DayCell
 from app.services.holiday import get_holiday_map
-from app.services.lunar import get_day_info, get_lunar_year_month
+from app.services.lunar import get_day_info
 
 
 def _month_grid_start(year: int, month: int) -> date:
@@ -14,15 +14,6 @@ def _month_grid_start(year: int, month: int) -> date:
     # 周一起始：周一=0 ... 周日=6
     weekday = first.weekday()
     return first - timedelta(days=weekday)
-
-
-def _reference_day(year: int, month: int) -> date:
-    """用于页头农历年月：本月含今天则用今天，否则用月中。"""
-    today = date.today()
-    if today.year == year and today.month == month:
-        return today
-    last_day = monthrange(year, month)[1]
-    return date(year, month, min(15, last_day))
 
 
 def _build_days(year: int, month: int) -> list[DayCell]:
@@ -58,20 +49,17 @@ def _build_days(year: int, month: int) -> list[DayCell]:
 
 
 @lru_cache(maxsize=256)
-def _get_days_cached(year: int, month: int) -> tuple[DayCell, ...]:
-    return tuple(_build_days(year, month))
-
-
 def get_calendar_cached(year: int, month: int) -> CalendarResponse:
-    # lunarYearMonth 依赖「今天」，不入缓存
-    ref = _reference_day(year, month)
+    days = _build_days(year, month)
+    target_day = min(15, monthrange(year, month)[1])
+    header = next(d for d in days if d.isCurrentMonth and d.day == target_day)
     return CalendarResponse(
         year=year,
         month=month,
-        lunarYearMonth=get_lunar_year_month(ref.year, ref.month, ref.day),
-        days=list(_get_days_cached(year, month)),
+        lunarYearMonth=header.lunarYearMonth,
+        days=days,
     )
 
 
 def clear_calendar_cache() -> None:
-    _get_days_cached.cache_clear()
+    get_calendar_cached.cache_clear()
