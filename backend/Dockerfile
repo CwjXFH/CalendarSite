@@ -1,19 +1,33 @@
-FROM python:3.14-slim
+FROM python:3.14-slim AS build
 
-RUN pip install uv -i https://pypi.mirrors.ustc.edu.cn/simple/
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install uv -i https://pypi.mirrors.ustc.edu.cn/simple/
+
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_LOCKED=1 \
+    UV_NO_DEV=1 \
+    UV_PROJECT_ENVIRONMENT=/venv
 
 WORKDIR /src
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.toml,target=uv.toml \
+    uv sync
 
-COPY . .
-RUN uv sync --frozen --no-dev
-RUN mkdir -p /src/data
+FROM python:3.14-slim
 
-EXPOSE 9000
+ENV PATH=/venv/bin:$PATH \
+    PYTHONPATH=/ \
+    PYTHONUNBUFFERED=1 \
+    TZ=Asia/Shanghai
 
-ENV TZ=Asia/Shanghai
-ENV UV_COMPILE_BYTECODE=1
-ENV UV_LINK_MODE=copy
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/src
+COPY --from=build /venv /venv
+COPY app /app
 
-CMD ["uv", "run", "app/main.py"]
+WORKDIR /app
+RUN mkdir -p /app/data
+
+CMD ["python", "-m", "main"]
