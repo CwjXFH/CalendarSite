@@ -1,0 +1,10 @@
+@base_url = http://localhost:9000/api/v1
+
+### Health
+GET {{base_url}}/health
+
+### Meta
+GET {{base_url}}/meta
+
+### Calendar
+GET {{base_url}}/calendar?year=1940&month=10
