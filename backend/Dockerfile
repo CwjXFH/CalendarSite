@@ -1,3 +1,11 @@
+# 多阶段构建，build装依赖，runtime只带venv+应用代码
+# 合理设计layer尽可能复用构建缓存(Docker build cache)
+# 整体复制虚拟环境、运行时不依赖uv/编译工具
+# 依赖层、代码层分离
+# 非root用户运行
+# https://hynek.me/articles/docker-uv/
+# https://mp.weixin.qq.com/s/znDhEj8KRDLCGafxAEWxgg
+
 FROM python:3.14-slim AS build
 
 RUN --mount=type=cache,target=/root/.cache/pip \
