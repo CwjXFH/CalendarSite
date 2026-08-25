@@ -91,8 +91,8 @@ export default function CalendarPage() {
     <div className="page">
       <header className="page__header">
         <div className="page__brand">
-          <Typography.Title level={2} className="page__title">
-            日历
+          <Typography.Title level={1} className="page__title">
+            万年历
           </Typography.Title>
           {headerLunar ? (
             <span className="page__lunar">{headerLunar}</span>

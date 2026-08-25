@@ -1,4 +1,4 @@
-@base_url = http://www.wannianli.site/api/v1
+@base_url = https://wannianli.site/api/v1
 
 ### Health
 GET {{base_url}}/health
