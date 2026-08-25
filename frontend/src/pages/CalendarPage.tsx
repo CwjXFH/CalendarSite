@@ -148,6 +148,16 @@ export default function CalendarPage() {
           </div>
         </div>
       </Spin>
+
+      <footer className="page__footer">
+        <a
+          href="https://beian.miit.gov.cn/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          沪ICP备2026041562号-1
+        </a>
+      </footer>
     </div>
   )
 }
