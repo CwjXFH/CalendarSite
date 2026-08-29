@@ -73,9 +73,12 @@ body {
 .page__footer {
   margin-top: auto;
   padding-top: 24px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
-  color: var(--muted);
+  color: #1b4f9a;
 }
 
 .page__footer a {
@@ -84,8 +87,19 @@ body {
 }
 
 .page__footer a:hover {
-  color: var(--text);
+  color: #143a75;
   text-decoration: underline;
+}
+
+.page__footer-mps {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page__footer-mps img {
+  width: 16px;
+  height: 16px;
 }
 
 .calendar {
