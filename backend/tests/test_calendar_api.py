@@ -38,7 +38,46 @@ def test_calendar_month() -> None:
     assert response.headers["cache-control"] == "public, max-age=86400"
 
 
+def _day(year: int, month: int, date: str) -> dict:
+    response = client.get("/api/v1/calendar", params={"year": year, "month": month})
+    assert response.status_code == 200
+    return next(d for d in response.json()["days"] if d["date"] == date)
+
+
+def test_2026_official_holidays() -> None:
+    """国办发明电〔2025〕7号：2026 年放假调休。"""
+    new_year = _day(2026, 1, "2026-01-03")
+    assert new_year["isLegalHoliday"] is True
+    new_year_work = _day(2026, 1, "2026-01-04")
+    assert new_year_work["isMakeupWorkday"] is True
+    assert new_year_work["isLegalHoliday"] is False
+
+    spring_start = _day(2026, 2, "2026-02-15")
+    spring_end = _day(2026, 2, "2026-02-23")
+    assert spring_start["isLegalHoliday"] is True
+    assert spring_end["isLegalHoliday"] is True
+    assert _day(2026, 2, "2026-02-14")["isMakeupWorkday"] is True
+    assert _day(2026, 2, "2026-02-28")["isMakeupWorkday"] is True
+
+    labor_work = _day(2026, 5, "2026-05-09")
+    assert labor_work["isMakeupWorkday"] is True
+    leftover = _day(2026, 4, "2026-04-26")
+    assert leftover["isMakeupWorkday"] is False
+    assert leftover["isLegalHoliday"] is False
+
+
 def test_invalid_year() -> None:
     response = client.get("/api/v1/calendar", params={"year": 1899, "month": 1})
     assert response.status_code == 400
     assert response.json()["code"] == "INVALID_YEAR"
+
+
+def test_lunar_festivals() -> None:
+    from app.services.lunar import get_day_info
+
+    assert get_day_info(2026, 2, 17)["festival"] == "春节"
+    assert get_day_info(2026, 2, 16)["festival"] == "除夕"
+    assert get_day_info(2026, 2, 10)["festival"] == "小年"
+    assert get_day_info(2026, 2, 11)["festival"] == "小年"
+    assert get_day_info(2026, 1, 26)["festival"] == "腊八"
+    assert get_day_info(2026, 3, 3)["festival"] == "元宵"

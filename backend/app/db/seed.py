@@ -75,10 +75,11 @@ HOLIDAY_SEED: list[tuple[str, str, str]] = [
     ("2025-10-08", "holiday", "国庆中秋"),
     ("2025-09-28", "workday", "国庆调休"),
     ("2025-10-11", "workday", "国庆调休"),
-    # 2026（国务院尚未最终公布前可按惯例预置，后续可改库）
+    # 2026（国办发明电〔2025〕7号）
     ("2026-01-01", "holiday", "元旦"),
     ("2026-01-02", "holiday", "元旦"),
     ("2026-01-03", "holiday", "元旦"),
+    ("2026-01-04", "workday", "元旦调休"),
     ("2026-02-15", "holiday", "春节"),
     ("2026-02-16", "holiday", "春节"),
     ("2026-02-17", "holiday", "春节"),
@@ -86,6 +87,8 @@ HOLIDAY_SEED: list[tuple[str, str, str]] = [
     ("2026-02-19", "holiday", "春节"),
     ("2026-02-20", "holiday", "春节"),
     ("2026-02-21", "holiday", "春节"),
+    ("2026-02-22", "holiday", "春节"),
+    ("2026-02-23", "holiday", "春节"),
     ("2026-02-14", "workday", "春节调休"),
     ("2026-02-28", "workday", "春节调休"),
     ("2026-04-04", "holiday", "清明"),
@@ -96,7 +99,6 @@ HOLIDAY_SEED: list[tuple[str, str, str]] = [
     ("2026-05-03", "holiday", "劳动节"),
     ("2026-05-04", "holiday", "劳动节"),
     ("2026-05-05", "holiday", "劳动节"),
-    ("2026-04-26", "workday", "劳动节调休"),
     ("2026-05-09", "workday", "劳动节调休"),
     ("2026-06-19", "holiday", "端午"),
     ("2026-06-20", "holiday", "端午"),
@@ -116,14 +118,14 @@ HOLIDAY_SEED: list[tuple[str, str, str]] = [
 ]
 
 
-def seed_holidays(force: bool = False) -> None:
+def seed_holidays(force: bool = True) -> None:
+    """用种子覆盖 holiday_days。默认覆盖已有数据，避免过期调休日残留。"""
     init_db()
     with get_connection() as conn:
         count = conn.execute("SELECT COUNT(*) AS c FROM holiday_days").fetchone()["c"]
         if count > 0 and force is False:
             return
-        if force:
-            conn.execute("DELETE FROM holiday_days")
+        conn.execute("DELETE FROM holiday_days")
         conn.executemany(
             "INSERT OR REPLACE INTO holiday_days (date, kind, name) VALUES (?, ?, ?)",
             HOLIDAY_SEED,

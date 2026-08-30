@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, Select, Space, Spin, Typography, message } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { fetchCalendar, fetchMeta, isAbortError } from '../api'
@@ -26,6 +26,7 @@ export default function CalendarPage() {
   const [lunarYearMonth, setLunarYearMonth] = useState('')
   const [selected, setSelected] = useState(todayStr())
   const [loading, setLoading] = useState(false)
+  const isFirstFetch = useRef(true)
   const today = todayStr()
 
   useEffect(() => {
@@ -41,6 +42,8 @@ export default function CalendarPage() {
 
   useEffect(() => {
     const controller = new AbortController()
+    const delay = isFirstFetch.current ? 0 : FETCH_DEBOUNCE_MS
+    isFirstFetch.current = false
     const timer = window.setTimeout(() => {
       setLoading(true)
       fetchCalendar(year, month, controller.signal)
@@ -62,7 +65,7 @@ export default function CalendarPage() {
             setLoading(false)
           }
         })
-    }, FETCH_DEBOUNCE_MS)
+    }, delay)
     return () => {
       window.clearTimeout(timer)
       controller.abort()

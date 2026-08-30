@@ -2,23 +2,37 @@
 
 from __future__ import annotations
 
-from lunar_python import Solar
+from lunar_python import Lunar, Solar
 
-# 仅展示白名单内的传统节日（格子保持简洁）
-FESTIVAL_SHORT: dict[str, str] = {
-    "春节": "春节",
-    "元宵节": "元宵",
-    "龙抬头": "龙抬头",
-    "端午节": "端午",
-    "七夕节": "七夕",
-    "中元节": "中元",
-    "中秋节": "中秋",
-    "重阳节": "重阳",
-    "腊八节": "腊八",
-    "除夕": "除夕",
-    "北方小年": "小年",
-    "南方小年": "小年",
+# 键是农历月日，不是公历。春节、中秋等按农历固定，对应公历每年不同。
+# 调用方先 Solar.fromYmd → getLunar()，再用当天的月、日查表。
+# 闰月 month 为负，不会命中正数键（闰二月初二不算龙抬头）。
+# 除夕不进表：腊月有时廿九、有时三十，由 _festival 判断下一天是否换年。
+FESTIVAL_BY_LUNAR_MD: dict[tuple[int, int], str] = {
+    (1, 1): "春节",
+    (1, 15): "元宵",
+    (2, 2): "龙抬头",
+    (5, 5): "端午",
+    (7, 7): "七夕",
+    (7, 15): "中元",
+    (8, 15): "中秋",
+    (9, 9): "重阳",
+    (12, 8): "腊八",
+    (12, 23): "小年",
+    (12, 24): "小年",
 }
+
+
+def _festival(lunar: Lunar) -> str | None:
+    month = lunar.getMonth()
+    day = lunar.getDay()
+    name = FESTIVAL_BY_LUNAR_MD.get((month, day))
+    if name is not None:
+        return name
+    if abs(month) == 12 and day >= 29:
+        if lunar.next(1).getYear() != lunar.getYear():
+            return "除夕"
+    return None
 
 
 def get_day_info(year: int, month: int, day: int) -> dict[str, str | None]:
@@ -36,15 +50,9 @@ def get_day_info(year: int, month: int, day: int) -> dict[str, str | None]:
     jie_qi = lunar.getJieQi()
     solar_term = jie_qi if jie_qi else None
 
-    festival: str | None = None
-    for name in lunar.getFestivals() + lunar.getOtherFestivals():
-        if name in FESTIVAL_SHORT:
-            festival = FESTIVAL_SHORT[name]
-            break
-
     return {
         "lunarText": lunar_text,
         "lunarYearMonth": f"{lunar.getYearInGanZhi()}年{month_cn}月",
-        "festival": festival,
+        "festival": _festival(lunar),
         "solarTerm": solar_term,
     }
