@@ -66,6 +66,21 @@ def test_2026_official_holidays() -> None:
     assert leftover["isLegalHoliday"] is False
 
 
+def test_holidays_2026() -> None:
+    response = client.get("/api/v1/holidays", params={"year": 2026})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["year"] == 2026
+    names = [p["name"] for p in data["periods"]]
+    assert "春节" in names
+    assert "国庆" in names
+    national = next(p for p in data["periods"] if p["name"] == "国庆")
+    assert national["days"] == 7
+    assert national["start"] == "2026-10-01"
+    assert "2026-09-20" in national["makeup"]
+    assert response.headers["cache-control"] == "public, max-age=86400"
+
+
 def test_invalid_year() -> None:
     response = client.get("/api/v1/calendar", params={"year": 1899, "month": 1})
     assert response.status_code == 400

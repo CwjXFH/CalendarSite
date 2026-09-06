@@ -18,8 +18,13 @@ export default function DayCellView({ cell, isToday, isSelected, onSelect }: Pro
   }
   if (cell.isLegalHoliday) {
     classes.push('day-cell--holiday')
-  } else if (cell.isWeekend && cell.isMakeupWorkday === false) {
+  } else if (cell.isMakeupWorkday) {
+    classes.push('day-cell--work')
+  } else if (cell.isWeekend) {
     classes.push('day-cell--weekend')
+  }
+  if (cell.solarTerm) {
+    classes.push('day-cell--term')
   }
   if (isToday) {
     classes.push('day-cell--today')
@@ -36,9 +41,11 @@ export default function DayCellView({ cell, isToday, isSelected, onSelect }: Pro
       className={classes.join(' ')}
       onClick={() => onSelect(cell.date)}
       aria-label={cell.date}
+      aria-pressed={isSelected}
     >
       <span className="day-cell__solar">{cell.day}</span>
       <span className="day-cell__lunar">{badge ?? cell.lunarText}</span>
+      {cell.isMakeupWorkday ? <span className="day-cell__ban">班</span> : null}
     </button>
   )
 }
