@@ -19,6 +19,9 @@
     {% if faq_json %}
     <script type="application/ld+json">{{ faq_json | safe }}</script>
     {% endif %}
+    {% if breadcrumb_json %}
+    <script type="application/ld+json">{{ breadcrumb_json | safe }}</script>
+    {% endif %}
     <script>
       var _hmt = _hmt || []
       ;(function () {
