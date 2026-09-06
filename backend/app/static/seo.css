@@ -436,6 +436,7 @@ body.is-year::after {
 
 .day-cell__lunar--term {
   color: var(--term);
+  font-weight: 650;
 }
 
 .day-cell__ban {

@@ -41,7 +41,7 @@ def test_year_page() -> None:
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
     assert 'class="page-main"' in text
-    assert 'href="/seo.css?v=20260906k"' in text
+    assert 'href="/seo.css?v=20260906l"' in text
     assert 'src="/logo.svg"' in text
     assert "放假安排放假" not in text
     assert "二十四节气节气" not in text
@@ -70,6 +70,7 @@ def test_seo_css_is_served() -> None:
     assert "--work-bg: #f3ead8;" in response.text
     assert "--today-fill: #f3ead8;" not in response.text
     assert ".day-cell--today {\n  background: var(--today-fill);" in response.text
+    assert ".day-cell__lunar--term {\n  color: var(--term);\n  font-weight: 650;\n}" in response.text
 
 
 def test_logo_svg_is_image() -> None:
@@ -139,6 +140,12 @@ def test_homepage_pixel_icons_and_grid() -> None:
     assert ".ico--leaf" not in css
     assert "border-right: 1px solid var(--grid-line);\n  border-bottom: 1px solid var(--grid-line)" not in css
     assert ".day-cell--weekend {\n  background: transparent;" in css
+    assert ".day-cell__lunar--term {\n  color: var(--term);\n  font-weight: 650;" in css
+    assert ".day-cell--selected:not(.day-cell--holiday):not(.day-cell--work):not(.day-cell--today) {\n  background: var(--selected-fill);" in css
+    assert ".day-cell--today {\n  background: var(--today-fill);" in css
+    assert ".day-cell--holiday {\n  background: var(--holiday-bg);\n  border-radius: 0;" in css
+    assert ".day-cell--work {\n  background: var(--work-bg);\n  border-radius: 0;" in css
+    assert ".day-cell--selected .day-cell__solar {\n  background: var(--selected-fill);" not in css
 
 
 def test_month_page_september_2026() -> None:

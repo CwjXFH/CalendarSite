@@ -454,7 +454,7 @@ body {
   font: inherit;
 }
 
-.day-cell:hover {
+.day-cell:hover:not(.day-cell--holiday):not(.day-cell--work):not(.day-cell--today):not(.day-cell--selected) {
   background: rgba(42, 38, 36, 0.04);
 }
 
@@ -464,10 +464,12 @@ body {
 
 .day-cell--holiday {
   background: var(--holiday-bg);
+  border-radius: 0;
 }
 
 .day-cell--work {
   background: var(--work-bg);
+  border-radius: 0;
 }
 
 .day-cell--today {
@@ -490,19 +492,8 @@ body {
   line-height: 1.1;
 }
 
-.day-cell--selected .day-cell__solar {
-  min-width: 28px;
-  min-height: 28px;
-  padding: 2px 4px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.day-cell--selected:not(.day-cell--holiday):not(.day-cell--work):not(.day-cell--today) {
   background: var(--selected-fill);
-}
-
-.day-cell--selected {
-  z-index: 1;
 }
 
 .day-cell__lunar {
@@ -518,6 +509,7 @@ body {
 
 .day-cell__lunar--term {
   color: var(--term);
+  font-weight: 650;
 }
 
 .day-cell__ban {
