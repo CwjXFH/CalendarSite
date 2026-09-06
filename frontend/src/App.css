@@ -76,8 +76,8 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(160deg, #f0b4ae 0%, #d88984 100%);
   flex-shrink: 0;
+  display: block;
 }
 
 .site-name {
@@ -176,12 +176,26 @@ body {
   font-weight: 600;
 }
 
-.nav-full {
-  display: inline !important;
-}
+@media (max-width: 840px) {
+  .nav-holiday,
+  .nav-jieqi {
+    font-size: 0;
+    line-height: 0;
+  }
 
-.nav-short {
-  display: none !important;
+  .nav-holiday::after,
+  .nav-jieqi::after {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .nav-holiday::after {
+    content: "放假";
+  }
+
+  .nav-jieqi::after {
+    content: "节气";
+  }
 }
 
 .holiday-bar {
@@ -503,14 +517,6 @@ body {
 
   .site-nav {
     justify-content: space-between;
-  }
-
-  .nav-full {
-    display: none !important;
-  }
-
-  .nav-short {
-    display: inline !important;
   }
 
   .holiday-bar {

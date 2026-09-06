@@ -238,7 +238,7 @@ export default function CalendarPage() {
     <div className="page">
       <header className="site-header">
         <a className="site-brand" href="/">
-          <span className="site-logo" aria-hidden="true" />
+          <img className="site-logo" src="/logo.svg" width={36} height={36} alt="" />
           <span className="site-brand__text">
             <span className="site-name">万年历</span>
             {headerLunar ? <span className="site-lunar">{headerLunar}</span> : null}
@@ -276,13 +276,11 @@ export default function CalendarPage() {
             月历
           </a>
           <a href={`/y/${year}`}>年历</a>
-          <a href={`/fangjia/${year}`}>
-            <span className="nav-full">放假安排</span>
-            <span className="nav-short">放假</span>
+          <a className="nav-holiday" href={`/fangjia/${year}`}>
+            放假安排
           </a>
-          <a href={`/jieqi/${year}`}>
-            <span className="nav-full">二十四节气</span>
-            <span className="nav-short">节气</span>
+          <a className="nav-jieqi" href={`/jieqi/${year}`}>
+            二十四节气
           </a>
         </nav>
       </header>

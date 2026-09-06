@@ -26,6 +26,7 @@ from app.services.jieqi import (
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
+SEO_CSS_VER = "20260906d"
 
 WEEKDAYS = ("一", "二", "三", "四", "五", "六", "日")
 
@@ -145,6 +146,7 @@ def _page(
         "nav_jieqi": f"/jieqi/{year}",
         "nav_year": f"/y/{year}",
         "nav_active": "",
+        "seo_css_href": f"/seo.css?v={SEO_CSS_VER}",
     }
     if extra:
         context.update(extra)
@@ -687,26 +689,51 @@ def _sitemap_response(kind: str) -> PlainTextResponse:
     )
 
 
-def _seo_css_path() -> Path | None:
+def _public_file(*relative: str) -> Path | None:
     here = Path(__file__).resolve().parent
-    for candidate in (
-        here / "static" / "seo.css",
-        here.parents[2] / "frontend" / "public" / "seo.css",
-    ):
+    name = Path(*relative)
+    for root in (here / "static", here.parents[2] / "frontend" / "public"):
+        candidate = root / name
         if candidate.is_file():
             return candidate
     return None
 
 
-@router.get("/seo.css")
+@router.api_route("/seo.css", methods=["GET", "HEAD"])
 @limiter.limit("120/minute")
 async def seo_css(request: Request) -> FileResponse:
-    path = _seo_css_path()
+    path = _public_file("seo.css")
     if path is None:
         raise HTTPException(status_code=404, detail="seo.css missing")
     return FileResponse(
         path,
         media_type="text/css",
+        headers={"Cache-Control": "public, max-age=600"},
+    )
+
+
+@router.api_route("/logo.svg", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def logo_svg(request: Request) -> FileResponse:
+    path = _public_file("logo.svg")
+    if path is None:
+        raise HTTPException(status_code=404, detail="logo.svg missing")
+    return FileResponse(
+        path,
+        media_type="image/svg+xml; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@router.api_route("/assets/logo.svg", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def assets_logo_svg(request: Request) -> FileResponse:
+    path = _public_file("logo.svg")
+    if path is None:
+        raise HTTPException(status_code=404, detail="logo.svg missing")
+    return FileResponse(
+        path,
+        media_type="image/svg+xml; charset=utf-8",
         headers={"Cache-Control": "public, max-age=86400"},
     )
 

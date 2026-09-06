@@ -38,17 +38,34 @@ def test_year_page() -> None:
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
     assert 'class="page-main"' in text
-    assert ".nav-short { display: none !important; }" in text
-    assert "@media (max-width: 840px)" in text
+    assert 'href="/seo.css?v=' in text
+    assert 'src="/logo.svg"' in text
+    assert "放假安排放假" not in text
+    assert "二十四节气节气" not in text
+    assert "nav-short" not in text
+    assert 'content: "放假"' in text
 
 
 def test_seo_css_is_served() -> None:
     response = client.get("/seo.css")
     assert response.status_code == 200
     assert "text/css" in response.headers["content-type"]
-    assert ".nav-short" in response.text
+    assert response.headers["cache-control"] == "public, max-age=600"
     assert ".page-main" in response.text
-    assert ".nav-full" in response.text
+    assert ".nav-holiday" in response.text
+    assert ".nav-short" not in response.text
+
+
+def test_logo_svg_is_image() -> None:
+    response = client.get("/logo.svg")
+    assert response.status_code == 200
+    assert "image/svg+xml" in response.headers["content-type"]
+    body = response.content.decode("utf-8")
+    assert "<svg" in body
+    assert "历" in body
+    assets = client.get("/assets/logo.svg")
+    assert assets.status_code == 200
+    assert "image/svg+xml" in assets.headers["content-type"]
 
 
 def test_month_page_september_2026() -> None:
