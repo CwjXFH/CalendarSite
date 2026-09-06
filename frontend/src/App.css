@@ -222,19 +222,10 @@ body {
   border-radius: var(--radius);
 }
 
-.holiday-bar__icon {
+.holiday-bar__gift {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border-radius: 8px;
-  background: var(--pink-deep);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.holiday-bar__icon svg {
   display: block;
 }
 

@@ -38,7 +38,7 @@ def test_year_page() -> None:
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
     assert 'class="page-main"' in text
-    assert 'href="/seo.css?v=20260906g"' in text
+    assert 'href="/seo.css?v=20260906h"' in text
     assert 'src="/logo.svg"' in text
     assert "放假安排放假" not in text
     assert "二十四节气节气" not in text
@@ -72,6 +72,17 @@ def test_logo_svg_is_image() -> None:
     assets = client.get("/assets/logo.svg")
     assert assets.status_code == 200
     assert "image/svg+xml" in assets.headers["content-type"]
+
+
+def test_gift_svg_is_image() -> None:
+    response = client.get("/gift.svg")
+    assert response.status_code == 200
+    assert "image/svg+xml" in response.headers["content-type"]
+    body = response.content.decode("utf-8")
+    assert "<svg" in body
+    assert "#D75A5A" in body
+    assert "#F6E5B5" in body
+    assert "PlusOutlined" not in body
 
 
 def test_month_page_september_2026() -> None:
