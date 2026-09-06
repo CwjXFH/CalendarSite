@@ -116,11 +116,17 @@ export function formatMakeup(dates: string[]): string {
     .join('、')
 }
 
-export function lunarDetail(cell: DayCell): string {
-  const ganZhi = cell.lunarYearMonth.slice(0, cell.lunarYearMonth.indexOf('年'))
-  const lunarMonth = cell.lunarYearMonth.slice(cell.lunarYearMonth.indexOf('年') + 1)
+export function lunarParts(cell: DayCell): { ganZhi: string; monthDay: string } {
+  const idx = cell.lunarYearMonth.indexOf('年')
+  const ganZhi = idx >= 0 ? `${cell.lunarYearMonth.slice(0, idx)}年` : cell.lunarYearMonth
+  const lunarMonth = idx >= 0 ? cell.lunarYearMonth.slice(idx + 1) : ''
   const lunarDay = cell.lunarText.endsWith('月') ? '初一' : cell.lunarText
-  return `农历${lunarMonth}${lunarDay} · ${ganZhi}年`
+  return { ganZhi, monthDay: `${lunarMonth}${lunarDay}` }
+}
+
+export function lunarDetail(cell: DayCell): string {
+  const { ganZhi, monthDay } = lunarParts(cell)
+  return `农历${monthDay} · ${ganZhi}`
 }
 
 export function dayStatus(cell: DayCell): string {

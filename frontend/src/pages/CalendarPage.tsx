@@ -9,7 +9,7 @@ import {
   daysBetween,
   formatMakeup,
   formatRange,
-  lunarDetail,
+  lunarParts,
   nextHolidayBar,
   parseDateQuery,
   parseHomeQuery,
@@ -225,6 +225,7 @@ export default function CalendarPage() {
   const selectedCell = days.find((d) => d.date === selected)
   const headerLunar = selectedCell?.lunarYearMonth || lunarYearMonth
   const holidayBar = useMemo(() => nextHolidayBar(periods, today), [periods, today])
+  const lunar = selectedCell ? lunarParts(selectedCell) : null
 
   const nearby = days
     .filter((d) => d.date > selected && (d.festival || d.solarTerm || d.isLegalHoliday))
@@ -237,39 +238,38 @@ export default function CalendarPage() {
   return (
     <div className="page">
       <header className="site-header">
-        <a className="site-brand" href="/">
-          <img className="site-logo" src="/logo.svg" width={36} height={36} alt="" />
-          <span className="site-brand__text">
+        <div className="site-header__row">
+          <a className="site-brand" href="/">
+            <img className="site-logo" src="/logo.svg" width={40} height={40} alt="" />
             <span className="site-name">万年历</span>
-            {headerLunar ? <span className="site-lunar">{headerLunar}</span> : null}
-          </span>
-        </a>
-        <div className="site-search-wrap">
-          <form
-            className="site-search"
-            role="search"
-            onSubmit={(ev) => {
-              ev.preventDefault()
-              onSearch(query)
-            }}
-          >
-            <span className="site-search__icon" aria-hidden="true" />
-            <input
-              type="search"
-              value={query}
-              onChange={(ev) => {
-                setQuery(ev.target.value)
-                setSearchNote(null)
+          </a>
+          <div className="site-search-wrap">
+            <form
+              className="site-search"
+              role="search"
+              onSubmit={(ev) => {
+                ev.preventDefault()
+                onSearch(query)
               }}
-              placeholder="搜索日期 / 节日 / 节气"
-              aria-label="搜索日期、节日或节气"
-            />
-          </form>
-          {searchNote ? (
-            <p className={`site-search__note${searchNote.ok ? ' is-ok' : ' is-empty'}`} role="status">
-              {searchNote.text}
-            </p>
-          ) : null}
+            >
+              <span className="site-search__icon" aria-hidden="true" />
+              <input
+                type="search"
+                value={query}
+                onChange={(ev) => {
+                  setQuery(ev.target.value)
+                  setSearchNote(null)
+                }}
+                placeholder="搜索日期/节日/节气"
+                aria-label="搜索日期、节日或节气"
+              />
+            </form>
+            {searchNote ? (
+              <p className={`site-search__note${searchNote.ok ? ' is-ok' : ' is-empty'}`} role="status">
+                {searchNote.text}
+              </p>
+            ) : null}
+          </div>
         </div>
         <nav className="site-nav" aria-label="站点">
           <a href="/" className="is-active">
@@ -288,6 +288,7 @@ export default function CalendarPage() {
       <section className="holiday-bar" aria-label="下一个假期">
         {holidayBar ? (
           <>
+            <span className="holiday-bar__icon" aria-hidden="true" />
             <span className="holiday-bar__tag">
               {holidayBar.long ? '下一个长假' : '下一个假期'}
             </span>
@@ -309,6 +310,7 @@ export default function CalendarPage() {
           </>
         ) : (
           <>
+            <span className="holiday-bar__icon" aria-hidden="true" />
             <span className="holiday-bar__tag">放假安排</span>
             <div className="holiday-bar__main">
               <strong>暂未公布后续长假</strong>
@@ -323,10 +325,10 @@ export default function CalendarPage() {
 
       <section className="cal-stage">
         <div className="cal-stage__toolbar">
-          <Space wrap>
+          <Space wrap className="cal-nav">
+            <Button icon={<LeftOutlined />} onClick={() => shiftMonth(-1)} />
             <Select value={year} options={yearOptions} onChange={setYear} style={{ width: 112 }} />
             <Select value={month} options={monthOptions} onChange={setMonth} style={{ width: 88 }} />
-            <Button icon={<LeftOutlined />} onClick={() => shiftMonth(-1)} />
             <Button icon={<RightOutlined />} onClick={() => shiftMonth(1)} />
             <Button
               onClick={() => {
@@ -339,111 +341,123 @@ export default function CalendarPage() {
               今天
             </Button>
           </Space>
+        </div>
+        <div className="cal-stage__body">
+          <Spin spinning={loading}>
+            <div className="calendar">
+              <div className="calendar__weekdays">
+                {WEEKDAYS.map((w, i) => (
+                  <div
+                    key={w}
+                    className={i >= 5 ? 'calendar__weekday calendar__weekday--weekend' : 'calendar__weekday'}
+                  >
+                    {w}
+                  </div>
+                ))}
+              </div>
+              <div className="calendar__grid">
+                {days.map((cell) => (
+                  <DayCellView
+                    key={cell.date}
+                    cell={cell}
+                    isToday={cell.date === today}
+                    isSelected={cell.date === selected}
+                    onSelect={setSelected}
+                  />
+                ))}
+              </div>
+            </div>
+          </Spin>
           <ul className="legend">
             <li>
-              <i className="legend__dot legend__dot--weekend" />
-              周末
+              <i className="legend__swatch legend__swatch--holiday" />
+              法定节假日
             </li>
             <li>
-              <i className="legend__dot legend__dot--holiday" />
-              法定假
+              <i className="legend__swatch legend__swatch--weekend" />
+              休息日
             </li>
             <li>
-              <i className="legend__dot legend__dot--work" />
+              <i className="legend__swatch legend__swatch--work" />
               调休班
             </li>
             <li>
-              <i className="legend__dot legend__dot--term" />
+              <i className="legend__swatch legend__swatch--term" />
               节气
+            </li>
+            <li>
+              <i className="legend__swatch legend__swatch--today" />
+              今天
             </li>
           </ul>
         </div>
-        <Spin spinning={loading}>
-          <div className="calendar">
-            <div className="calendar__weekdays">
-              {WEEKDAYS.map((w) => (
-                <div key={w} className="calendar__weekday">
-                  {w}
-                </div>
-              ))}
-            </div>
-            <div className="calendar__grid">
-              {days.map((cell) => (
-                <DayCellView
-                  key={cell.date}
-                  cell={cell}
-                  isToday={cell.date === today}
-                  isSelected={cell.date === selected}
-                  onSelect={setSelected}
-                />
-              ))}
-            </div>
-          </div>
-        </Spin>
       </section>
 
       <section className="day-card" aria-live="polite">
-        <div className="day-card__when">
-          <h2>
-            {selectedCell
-              ? `${Number(selected.slice(5, 7))}月${selectedCell.day}日 · ${weekdayLabel(selected)}`
-              : selected}
+        <div className="day-card__hero">
+          <p className="day-card__ym">
+            {year}年{month}月
             {titleExtra ? ` · ${titleExtra}` : ''}
-          </h2>
-          <p>
-            {selectedCell ? lunarDetail(selectedCell) : headerLunar}
+          </p>
+          <p className="day-card__num">{selectedCell ? selectedCell.day : selected.slice(8)}</p>
+          <p className="day-card__dow">
+            {weekdayLabel(selected)}
             {selected === today ? ' · 今天' : ''}
           </p>
+          <p className="day-card__lunar">{lunar ? lunar.monthDay : headerLunar}</p>
+          {lunar ? <p className="day-card__ganz">{lunar.ganZhi}</p> : null}
         </div>
-        <div className="day-card__cols">
-          <div>
-            <h3>临近</h3>
-            {nearby.length > 0 ? (
-              <ul>
-                {nearby.map((cell) => {
-                  const name = cell.festival || cell.solarTerm || '节日'
-                  const delta = daysBetween(selected, cell.date)
-                  const label = delta === 1 ? `明天${name}` : `距${name} ${delta} 天`
-                  return <li key={`${cell.date}-${name}`}>{label}</li>
-                })}
-              </ul>
-            ) : (
-              <p>本月余下暂无节日或节气</p>
-            )}
+        <div className="day-card__panel">
+          <div className="day-card__cols">
+            <div>
+              <h3>临近</h3>
+              {nearby.length > 0 ? (
+                <ul>
+                  {nearby.map((cell) => {
+                    const name = cell.festival || cell.solarTerm || '节日'
+                    const delta = daysBetween(selected, cell.date)
+                    const label = delta === 1 ? `明天${name}` : `距${name} ${delta} 天`
+                    return <li key={`${cell.date}-${name}`}>{label}</li>
+                  })}
+                </ul>
+              ) : (
+                <p>本月余下暂无节日或节气</p>
+              )}
+            </div>
+            <div>
+              <h3>本月</h3>
+              {monthPoints.length > 0 ? (
+                <ul>
+                  {monthPoints.map((cell) => (
+                    <li key={`${cell.date}-m`}>
+                      {cell.day}日 {cell.festival || cell.solarTerm || '法定假日'}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>本月暂无节气或法定假日</p>
+              )}
+            </div>
+            <div>
+              <h3>状态</h3>
+              <p>{selectedCell ? dayStatus(selectedCell) : '—'}</p>
+            </div>
           </div>
-          <div>
-            <h3>本月</h3>
-            {monthPoints.length > 0 ? (
-              <ul>
-                {monthPoints.map((cell) => (
-                  <li key={`${cell.date}-m`}>
-                    {cell.day}日 {cell.festival || cell.solarTerm || '法定假日'}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>本月暂无节气或法定假日</p>
-            )}
+          <div className="day-card__actions">
+            <a
+              className="day-card__btn day-card__btn--jieqi"
+              href={
+                selectedCell?.solarTerm && JIEQI_SLUG[selectedCell.solarTerm]
+                  ? `/jieqi/${year}/${JIEQI_SLUG[selectedCell.solarTerm]}`
+                  : `/jieqi/${year}`
+              }
+            >
+              查看节气
+            </a>
+            <a className="day-card__btn" href={`/fangjia/${year}`}>
+              查看放假安排
+            </a>
           </div>
-          <div>
-            <h3>状态</h3>
-            <p>{selectedCell ? dayStatus(selectedCell) : '—'}</p>
-          </div>
-        </div>
-        <div className="day-card__actions">
-          <a
-            className="day-card__btn"
-            href={
-              selectedCell?.solarTerm && JIEQI_SLUG[selectedCell.solarTerm]
-                ? `/jieqi/${year}/${JIEQI_SLUG[selectedCell.solarTerm]}`
-                : `/jieqi/${year}`
-            }
-          >
-            查看节气
-          </a>
-          <a className="day-card__btn day-card__btn--solid" href={`/fangjia/${year}`}>
-            放假安排
-          </a>
         </div>
       </section>
 

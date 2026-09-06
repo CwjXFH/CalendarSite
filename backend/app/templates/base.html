@@ -46,14 +46,16 @@
   <body>
     <div class="page">
       <header class="site-header">
-        <a class="site-brand" href="/">
-          <img class="site-logo" src="/logo.svg" width="36" height="36" alt="" />
-          <span class="site-name">万年历</span>
-        </a>
-        <form class="site-search" action="/" method="get" role="search">
-          <span class="site-search__icon" aria-hidden="true"></span>
-          <input type="search" name="q" placeholder="搜索日期 / 节日 / 节气" aria-label="搜索日期、节日或节气" />
-        </form>
+        <div class="site-header__row">
+          <a class="site-brand" href="/">
+            <img class="site-logo" src="/logo.svg" width="40" height="40" alt="" />
+            <span class="site-name">万年历</span>
+          </a>
+          <form class="site-search" action="/" method="get" role="search">
+            <span class="site-search__icon" aria-hidden="true"></span>
+            <input type="search" name="q" placeholder="搜索日期/节日/节气" aria-label="搜索日期、节日或节气" />
+          </form>
+        </div>
         <nav class="site-nav" aria-label="站点">
           <a href="{{ nav_home }}"{% if nav_active == "month" %} class="is-active"{% endif %}>月历</a>
           <a href="{{ nav_year }}"{% if nav_active == "year" %} class="is-active"{% endif %}>年历</a>
@@ -62,7 +64,7 @@
         </nav>
       </header>
       <main class="page-main">
-        <h1 class="page__heading">{{ heading }}</h1>
+        <h1 class="page__heading{% if nav_active == 'year' %} page__heading--year{% endif %}">{{ heading }}</h1>
         {% block content %}{% endblock %}
       </main>
       <footer class="page__footer">
