@@ -1,37 +1,29 @@
 {% macro month_cal(cal, weekdays, today=None, compact=false) %}
-<table class="cal{% if compact %} cal--mini{% endif %}">
-  <caption>
-    {% if compact %}
-    <a href="{{ cal.href }}">{{ cal.year }}年{{ cal.month }}月</a>
-    {% else %}
-    {{ cal.year }}年{{ cal.month }}月 {{ cal.lunarYearMonth }}
-    {% endif %}
-  </caption>
-  <thead>
-    <tr>
-      {% for w in weekdays %}
-      <th scope="col">{{ w }}</th>
-      {% endfor %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for week in cal.weeks %}
-    <tr>
-      {% for cell in week %}
-      <td class="{% if cell.isCurrentMonth == false %}muted-day{% endif %}{% if cell.isLegalHoliday %} holiday{% elif cell.isWeekend and cell.isMakeupWorkday == false %} weekend{% endif %}{% if today and cell.date == today %} today{% endif %}">
-        <span class="solar">{{ cell.day }}</span>
-        {% if compact == false %}
-        <span class="lunar">{{ cell.festival or cell.solarTerm or cell.lunarText }}</span>
-        {% elif cell.festival or cell.solarTerm %}
-        <span class="lunar">{{ cell.festival or cell.solarTerm }}</span>
-        {% endif %}
-        {% if cell.isMakeupWorkday %}<span class="ban">班</span>{% endif %}
-      </td>
-      {% endfor %}
-    </tr>
+<div class="calendar{% if compact %} calendar--mini{% endif %}">
+  {% if compact %}
+  <div class="calendar__caption"><a href="{{ cal.href }}">{{ cal.year }}年{{ cal.month }}月</a></div>
+  {% endif %}
+  <div class="calendar__weekdays">
+    {% for w in weekdays %}
+    <div class="calendar__weekday">{{ w }}</div>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
+  <div class="calendar__grid">
+    {% for week in cal.weeks %}
+      {% for cell in week %}
+      <div class="day-cell{% if cell.isCurrentMonth == false %} day-cell--muted{% endif %}{% if cell.isLegalHoliday %} day-cell--holiday{% elif cell.isWeekend and cell.isMakeupWorkday == false %} day-cell--weekend{% endif %}{% if today and cell.date == today %} day-cell--today{% endif %}">
+        <span class="day-cell__solar">{{ cell.day }}</span>
+        {% if compact == false %}
+        <span class="day-cell__lunar">{{ cell.festival or cell.solarTerm or cell.lunarText }}</span>
+        {% elif cell.festival or cell.solarTerm %}
+        <span class="day-cell__lunar">{{ cell.festival or cell.solarTerm }}</span>
+        {% endif %}
+        {% if cell.isMakeupWorkday %}<span class="day-cell__ban">班</span>{% endif %}
+      </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
 {% endmacro %}
 
 {% macro faq_section(faqs) %}
@@ -44,24 +36,4 @@
   </article>
   {% endfor %}
 </section>
-{% endmacro %}
-
-{% macro jump_form(year, month, min_year, max_year) %}
-<form class="jump" action="/y/jump" method="get">
-  <label>年份
-    <select name="year">
-      {% for y in range(min_year, max_year + 1) %}
-      <option value="{{ y }}"{% if y == year %} selected{% endif %}>{{ y }}</option>
-      {% endfor %}
-    </select>
-  </label>
-  <label>月份
-    <select name="month">
-      {% for m in range(1, 13) %}
-      <option value="{{ m }}"{% if m == month %} selected{% endif %}>{{ m }}月</option>
-      {% endfor %}
-    </select>
-  </label>
-  <button type="submit">查看</button>
-</form>
 {% endmacro %}

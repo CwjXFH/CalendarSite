@@ -9,8 +9,7 @@ GET {{base_url}}/meta
 ### Calendar
 GET {{base_url}}/calendar?year=1940&month=10
 
-### HTML home
-GET http://localhost:9000/
+### SEO topic pages (home / is the SPA on the frontend)
 
 ### Year / fangjia / jieqi
 GET http://localhost:9000/y/2026

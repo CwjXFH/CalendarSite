@@ -6,7 +6,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from fastapi.templating import Jinja2Templates
 
@@ -122,63 +122,6 @@ def _page(
     if extra:
         context.update(extra)
     return _html(request, template, context, max_age=max_age)
-
-
-def _home_faqs(today: date, year: int) -> list[tuple[str, str]]:
-    periods = group_holiday_periods(year)
-    spring = next((p for p in periods if "春节" in p.name), None)
-    terms = get_jieqi_year(year)
-    nxt = next((t for t in terms if t.when >= today), terms[0] if terms else None)
-    faqs = [
-        (
-            "这个万年历能查什么？",
-            "可对照公历与农历，查看法定节假日、调休补班、传统节日和二十四节气，覆盖 1900 年至未来三年。",
-        ),
-        (
-            f"{year}年放假安排在哪里看？",
-            f"见「{year}年放假安排」页面，按假期列出放假区间和调休上班日，并在月历上标出休、班。"
-            if periods
-            else f"{year}年国务院办公厅若尚未公布放假安排，页面会说明；已公布年份可直接查看放假与调休日历。",
-        ),
-    ]
-    if spring is not None:
-        makeup = f"；调休上班：{_fmt_dates(spring.makeup)}" if spring.makeup else ""
-        faqs.append(
-            (
-                f"{year}年春节放几天？",
-                f"{year}年春节放假{_fmt_range(spring.start, spring.end)}，共{spring.days}天{makeup}。",
-            )
-        )
-    faqs.extend(
-        [
-            (
-                "法定节假日和调休怎么区分？",
-                "月历中较深红色为法定节假日（休），标「班」的是调休上班日；周末为浅红色，调休补班日按工作日计。",
-            ),
-            (
-                "二十四节气交节时间是什么？",
-                "交节时间是该节气时刻（北京时间）。本站按节气表计算 1900 年起各年交节日与钟点，可在二十四节气页查看。",
-            ),
-            (
-                "公历和农历如何对照？",
-                "每个日期格子同时给出公历日和农历日；月初一显示农历月份。年、月页面均可对照。",
-            ),
-        ]
-    )
-    if nxt is not None:
-        faqs.append(
-            (
-                f"{year}年下一个节气是什么？",
-                f"{nxt.name}交节时间是{nxt.datetime_text}（北京时间）。",
-            )
-        )
-    faqs.append(
-        (
-            "可以下载放假日历吗？",
-            f"已公布安排的年份提供 iCalendar，例如 {SITE_URL}/fangjia/{year}.ics，可导入系统日历。",
-        )
-    )
-    return faqs[:8]
 
 
 def _fangjia_faqs(year: int, periods: list) -> list[tuple[str, str]]:
@@ -364,44 +307,6 @@ def _jieqi_term_faqs(year: int, item: JieqiItem, prev: JieqiItem | None, nxt: Ji
     return faqs[:8]
 
 
-@router.get("/", response_class=HTMLResponse)
-@limiter.limit("60/minute")
-async def home(request: Request) -> HTMLResponse:
-    today = date.today()
-    year, month = today.year, today.month
-    if _valid_year(year) is False:
-        year = min(max(year, MIN_YEAR), max_year())
-    faqs = _home_faqs(today, year)
-    return _page(
-        request,
-        template="home.html",
-        title="万年历 - 公历农历对照，法定节假日与二十四节气",
-        description="在线万年历，同时显示公历与农历，标注法定节假日、调休补班、传统节日和二十四节气。覆盖 1900 年至未来三年。",
-        path="/",
-        heading="万年历",
-        year=year,
-        faqs=faqs,
-        extra={
-            "cal": _month_view(year, month),
-            "today": today.isoformat(),
-            "holiday_years": holiday_years(),
-            "jieqi_preview": get_jieqi_year(year)[:8],
-        },
-        max_age=600,
-    )
-
-
-@router.get("/y/jump")
-@limiter.limit("60/minute")
-async def jump_month(
-    request: Request,
-    year: int = Query(...),
-    month: int = Query(..., ge=1, le=12),
-) -> Response:
-    _require_year(year)
-    return Response(status_code=302, headers={"Location": f"/y/{year}/m/{month}"})
-
-
 @router.get("/y/{year}", response_class=HTMLResponse)
 @limiter.limit("60/minute")
 async def year_page(request: Request, year: int) -> HTMLResponse:
@@ -492,7 +397,7 @@ async def month_page(request: Request, year: int, month: int) -> HTMLResponse:
         ),
         (
             "如何换月份？",
-            "使用上月、下月链接，或在表单中选择年份月份后查看。",
+            "使用上月、下月链接进入相邻月份；交互换月请回首页万年历。",
         ),
         (
             f"{year}年放假安排在哪？",

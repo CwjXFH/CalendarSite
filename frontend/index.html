@@ -32,6 +32,62 @@
         "description": "在线万年历，公历农历对照，法定节假日与二十四节气。"
       }
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "这个万年历能查什么？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "可对照公历与农历，查看法定节假日、调休补班、传统节日和二十四节气，覆盖 1900 年至未来三年。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "2026年放假安排在哪里看？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "见 2026年放假安排页 https://wannianli.site/fangjia/2026 ，按假期列出放假区间和调休上班日。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "法定节假日和调休怎么区分？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "月历中较深红色为法定节假日，标「班」的是调休上班日；周末为浅红色。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "二十四节气交节时间在哪查？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "见二十四节气时间表 https://wannianli.site/jieqi/2026 ，列出各节气交节日期与北京时间钟点。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "公历和农历如何对照？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "首页月历每格同时给出公历日和农历日；年、月专题页也可对照。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "可以下载放假日历吗？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "已公布安排的年份提供 iCalendar，例如 https://wannianli.site/fangjia/2026.ics 。"
+            }
+          }
+        ]
+      }
+    </script>
     <script>
       var _hmt = _hmt || []
       ;(function () {
@@ -48,9 +104,15 @@
   <body>
     <div id="root"></div>
     <noscript>
-      交互日历需要 JavaScript。无脚本可打开
-      <a href="/">万年历首页</a>、<a href="/fangjia/2026">2026年放假安排</a>
-      或 <a href="/jieqi/2026">2026年二十四节气</a>。
+      <h1>万年历</h1>
+      <p>公历农历对照，法定节假日、调休与二十四节气。交互月历需要 JavaScript。</p>
+      <p>
+        <a href="/y/2026">2026年年历</a> ·
+        <a href="/fangjia/2026">2026年放假安排</a> ·
+        <a href="/jieqi/2026">2026年二十四节气</a>
+      </p>
+      <h2>常见问题</h2>
+      <p>放假与调休见放假安排页；节气交节时间见二十四节气表；首页月历同时显示公历与农历。</p>
     </noscript>
     <script>
       if ("serviceWorker" in navigator && location.hostname === "wannianli.site") {
