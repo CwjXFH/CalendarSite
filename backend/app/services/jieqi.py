@@ -177,11 +177,13 @@ def jieqi_around(year: int) -> tuple[JieqiItem, ...]:
 
 def nearest_jieqi(day: date, items: tuple[JieqiItem, ...] | None = None) -> tuple[JieqiItem, bool] | None:
     pool = items if items is not None else jieqi_around(day.year)
-    past = [item for item in pool if item.when <= day]
-    if past != []:
-        item = past[-1]
-        return item, item.when < day
-    future = [item for item in pool if item.when > day]
-    if future != []:
-        return future[0], False
-    return None
+    if pool == ():
+        return None
+
+    def closer(item: JieqiItem) -> tuple[int, int]:
+        delta = abs((item.when - day).days)
+        upcoming_first = 0 if item.when >= day else 1
+        return (delta, upcoming_first)
+
+    item = min(pool, key=closer)
+    return item, item.when < day

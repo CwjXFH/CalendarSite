@@ -23,6 +23,10 @@ import type { DayCell, DayDetail, HolidayPeriod } from '../types'
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
 const FETCH_DEBOUNCE_MS = 150
 
+function GiftMark() {
+  return <img className="holiday-bar__gift" src="/gift.svg" width={28} height={28} alt="" />
+}
+
 function applyYmd(
   ymd: { y: number; m: number; d: number },
   minYear: number,
@@ -273,7 +277,10 @@ export default function CalendarPage() {
         <div className="site-header__row">
           <a className="site-brand" href="/">
             <img className="site-logo" src="/logo.svg" width={40} height={40} alt="" />
-            <span className="site-name">万年历</span>
+            <span className="site-brand__text">
+              <span className="site-name">万年历</span>
+              {headerLunar ? <span className="site-lunar">{headerLunar}</span> : null}
+            </span>
           </a>
           <div className="site-search-wrap">
             <form
@@ -320,7 +327,7 @@ export default function CalendarPage() {
       <section className="holiday-bar" aria-label="下一个假期">
         {holidayBar ? (
           <>
-            <span className="holiday-bar__icon" aria-hidden="true" />
+            <GiftMark />
             <span className="holiday-bar__tag">
               {holidayBar.long ? '下一个长假' : '下一个假期'}
             </span>
@@ -342,7 +349,7 @@ export default function CalendarPage() {
           </>
         ) : (
           <>
-            <span className="holiday-bar__icon" aria-hidden="true" />
+            <GiftMark />
             <span className="holiday-bar__tag">放假安排</span>
             <div className="holiday-bar__main">
               <strong>暂未公布后续长假</strong>
@@ -443,25 +450,21 @@ export default function CalendarPage() {
         <div className="day-card__almanac">
           {ganZhi ? <p className="day-card__ganz">{ganZhi}</p> : null}
           <p className="day-card__lunar">{monthDay}</p>
-          {yi.length === 0 && ji.length === 0 ? (
-            <p className="yiji-empty">暂无宜忌</p>
-          ) : (
-            <div className="yiji">
-              <p className="yiji__row">
-                <span className="yiji__dot yiji__dot--yi">宜</span>
-                <span>{yiView.shown.length > 0 ? yiView.shown.join(' ') : '暂无宜忌'}</span>
-              </p>
-              <p className="yiji__row">
-                <span className="yiji__dot yiji__dot--ji">忌</span>
-                <span>{jiView.shown.length > 0 ? jiView.shown.join(' ') : '暂无宜忌'}</span>
-              </p>
-              {yiView.rest > 0 || jiView.rest > 0 ? (
-                <button type="button" className="yiji__more" onClick={() => setYijiMore((v) => v === false)}>
-                  {yijiMore ? '收起' : '更多'}
-                </button>
-              ) : null}
-            </div>
-          )}
+          <div className="yiji">
+            <p className="yiji__row">
+              <span className="yiji__dot yiji__dot--yi">宜</span>
+              <span>{yiView.shown.length > 0 ? yiView.shown.join(' ') : '暂无宜忌'}</span>
+            </p>
+            <p className="yiji__row">
+              <span className="yiji__dot yiji__dot--ji">忌</span>
+              <span>{jiView.shown.length > 0 ? jiView.shown.join(' ') : '暂无宜忌'}</span>
+            </p>
+            {yiView.rest > 0 || jiView.rest > 0 ? (
+              <button type="button" className="yiji__more" onClick={() => setYijiMore((v) => v === false)}>
+                {yijiMore ? '收起' : '更多'}
+              </button>
+            ) : null}
+          </div>
         </div>
         <div className="day-card__aside">
           <div className="day-card__term">
@@ -471,7 +474,7 @@ export default function CalendarPage() {
             </p>
             <p>
               {nearestTerm
-                ? formatTermLine(nearestTerm)
+                ? formatTermLine(nearestTerm, selected)
                 : selectedCell?.solarTerm || '本月暂无交节信息'}
             </p>
           </div>

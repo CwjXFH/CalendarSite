@@ -10,7 +10,7 @@ export default function App() {
       theme={{
         token: {
           colorPrimary: '#c47878',
-          borderRadius: 6,
+          borderRadius: 10,
           fontFamily:
             '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
         },

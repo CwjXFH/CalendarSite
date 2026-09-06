@@ -26,7 +26,7 @@ from app.services.jieqi import (
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
-SEO_CSS_VER = "20260906f"
+SEO_CSS_VER = "20260906h"
 
 WEEKDAYS = ("一", "二", "三", "四", "五", "六", "日")
 
@@ -718,6 +718,19 @@ async def logo_svg(request: Request) -> FileResponse:
     path = _public_file("logo.svg")
     if path is None:
         raise HTTPException(status_code=404, detail="logo.svg missing")
+    return FileResponse(
+        path,
+        media_type="image/svg+xml; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@router.api_route("/gift.svg", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def gift_svg(request: Request) -> FileResponse:
+    path = _public_file("gift.svg")
+    if path is None:
+        raise HTTPException(status_code=404, detail="gift.svg missing")
     return FileResponse(
         path,
         media_type="image/svg+xml; charset=utf-8",

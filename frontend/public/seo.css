@@ -14,7 +14,9 @@
   --today-fill: #f0e2c4;
   --today-line: #d4b48a;
   --grid-line: #efe6dc;
-  --shadow: 0 8px 28px rgba(80, 56, 48, 0.07);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 24px rgba(80, 56, 48, 0.06);
 }
 
 * {
@@ -49,7 +51,7 @@ body {
   padding: 16px 20px 12px;
   background: var(--card);
   border: 1px solid var(--grid-line);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
@@ -96,6 +98,7 @@ body {
   border: 1px solid #e6ddd3;
   border-radius: 999px;
   background: #fff;
+  box-shadow: var(--shadow);
 }
 
 .site-search__icon {
@@ -154,7 +157,16 @@ body {
 }
 
 .tabbar {
-  display: none;
+  display: none !important;
+}
+
+@media (min-width: 841px) {
+  .tabbar {
+    display: none !important;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
 }
 
 .tabbar .nav-holiday.is-active,
@@ -173,10 +185,11 @@ body {
 }
 
 .page__heading--year {
-  margin: 10px 0 16px;
-  font-size: 32px;
+  margin: 18px 0 8px;
+  font-size: 34px;
   text-align: center;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  font-weight: 700;
 }
 
 .page__heading--space {
@@ -196,9 +209,10 @@ body {
 body.is-year {
   background-color: #fcf8ef;
   background-image:
-    radial-gradient(ellipse at 14% 108%, rgba(70, 68, 62, 0.07) 0%, transparent 38%),
-    radial-gradient(ellipse at 86% 110%, rgba(50, 54, 50, 0.06) 0%, transparent 36%),
-    radial-gradient(ellipse at 50% 0%, #fff8ef 0%, transparent 46%);
+    radial-gradient(ellipse at 12% 100%, rgba(70, 68, 62, 0.12) 0%, transparent 42%),
+    radial-gradient(ellipse at 88% 102%, rgba(48, 52, 48, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% -8%, #fff8ef 0%, transparent 48%),
+    linear-gradient(180deg, #fbf6ec 0%, #fcf8ef 36%, #f4efe4 100%);
 }
 
 body.is-year::after {
@@ -207,13 +221,13 @@ body.is-year::after {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 140px;
+  height: 200px;
   pointer-events: none;
-  opacity: 0.16;
+  opacity: 0.22;
   background:
-    radial-gradient(ellipse at 20% 120%, #6d6a62 0%, transparent 46%),
-    radial-gradient(ellipse at 55% 130%, #8a8680 0%, transparent 42%),
-    radial-gradient(ellipse at 82% 120%, #5c5a54 0%, transparent 40%);
+    radial-gradient(ellipse at 18% 128%, #5a564e 0%, transparent 48%),
+    radial-gradient(ellipse at 52% 140%, #7d786e 0%, transparent 46%),
+    radial-gradient(ellipse at 84% 126%, #4e4c46 0%, transparent 44%);
 }
 
 .page__lede a,
@@ -446,14 +460,14 @@ body.is-year::after {
   color: inherit;
   text-decoration: none;
   background: var(--card);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
 }
 
 .cal-card .calendar {
   border: 0;
-  border-radius: 16px;
+  border-radius: var(--radius);
 }
 
 .cal-card:hover {
@@ -475,7 +489,7 @@ body.is-year::after {
   border-collapse: collapse;
   background: var(--card);
   border: 1px solid var(--grid-line);
-  border-radius: 16px;
+  border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
 }
@@ -587,7 +601,7 @@ body.is-year::after {
   }
 
   .tabbar {
-    display: grid;
+    display: grid !important;
     grid-template-columns: repeat(4, 1fr);
     position: fixed;
     left: 0;
@@ -626,7 +640,7 @@ body.is-year::after {
 
 @media (max-width: 640px) {
   .page {
-    padding: 12px 10px;
+    padding: 12px 10px 72px;
   }
 
   .site-name {

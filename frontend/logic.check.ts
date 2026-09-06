@@ -63,8 +63,16 @@ assert.deepEqual(clippedList(['a', 'b', 'c'], false, 2), { shown: ['a', 'b'], re
 assert.deepEqual(clippedList(['a', 'b', 'c'], true, 2), { shown: ['a', 'b', 'c'], rest: 0 })
 assert.deepEqual(clippedList([], false), { shown: [], rest: 0 })
 assert.equal(
-  formatTermLine({ name: '秋分', date: '2026-09-23', time: '21:04', passed: true }),
+  formatTermLine({ name: '秋分', date: '2026-09-23', time: '21:04', passed: true }, '2026-09-24'),
   '秋分（已过） 9月23日 21:04',
+)
+assert.equal(
+  formatTermLine({ name: '白露', date: '2026-09-07', time: '22:41', passed: false }, '2026-09-06'),
+  '白露（未至） 9月7日 22:41',
+)
+assert.equal(
+  formatTermLine({ name: '秋分', date: '2026-09-23', time: '08:05', passed: false }, '2026-09-23'),
+  '秋分（当日） 9月23日 08:05',
 )
 
 console.log('logic.check ok')
