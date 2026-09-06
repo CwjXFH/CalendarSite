@@ -455,7 +455,6 @@ body {
 
 .day-cell:hover {
   background: rgba(42, 38, 36, 0.04);
-  border-radius: 10px;
 }
 
 .day-cell--weekend {
@@ -464,12 +463,10 @@ body {
 
 .day-cell--holiday {
   background: var(--holiday-bg);
-  border-radius: 10px;
 }
 
 .day-cell--work {
   background: var(--work-bg);
-  border-radius: 10px;
 }
 
 .day-cell--muted {
@@ -504,15 +501,8 @@ body {
 }
 
 .day-cell--selected {
-  background: transparent;
   box-shadow: none;
   z-index: 1;
-}
-
-.day-cell--selected.day-cell--holiday,
-.day-cell--selected.day-cell--weekend,
-.day-cell--selected.day-cell--work {
-  background: transparent;
 }
 
 .day-cell--selected .day-cell__solar {

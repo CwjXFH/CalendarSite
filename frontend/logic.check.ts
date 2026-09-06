@@ -3,7 +3,9 @@ import {
   clippedList,
   daysBetween,
   formatTermLine,
+  isoDate,
   lunarParts,
+  monthLandingDate,
   nextHolidayBar,
   parseDateQuery,
   parseHomeQuery,
@@ -74,5 +76,12 @@ assert.equal(
   formatTermLine({ name: '秋分', date: '2026-09-23', time: '08:05', passed: false }, '2026-09-23'),
   '秋分（当日） 9月23日 08:05',
 )
+
+assert.equal(isoDate(2026, 2, 31), '2026-02-28')
+assert.equal(monthLandingDate(2026, 9, today), '2026-09-06')
+assert.equal(monthLandingDate(2026, 4, today), '2026-04-06')
+assert.notEqual(monthLandingDate(2026, 4, today), '2026-04-01')
+assert.equal(monthLandingDate(2026, 10, today, '2026-09-24'), '2026-10-24')
+assert.equal(monthLandingDate(2026, 2, today, '2026-01-31'), '2026-02-28')
 
 console.log('logic.check ok')

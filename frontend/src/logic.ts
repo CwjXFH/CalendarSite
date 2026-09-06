@@ -36,6 +36,22 @@ export function todayStr(now = new Date()): string {
   return `${y}-${m}-${d}`
 }
 
+export function isoDate(year: number, month: number, day: number): string {
+  const last = new Date(year, month, 0).getDate()
+  const d = Math.min(Math.max(day, 1), last)
+  return `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+}
+
+/** 切月落点：当月回今天，否则沿用已选日（夹紧），不用 1 号当默认高亮。 */
+export function monthLandingDate(year: number, month: number, now: Date, selected?: string): string {
+  if (year === now.getFullYear() && month === now.getMonth() + 1) {
+    return todayStr(now)
+  }
+  const raw = selected ? Number(selected.slice(8)) : now.getDate()
+  const day = Number.isFinite(raw) && raw > 0 ? raw : now.getDate()
+  return isoDate(year, month, day)
+}
+
 export function weekdayLabel(date: string): string {
   const dt = new Date(`${date}T12:00:00`)
   return `星期${WEEKDAYS[dt.getDay()]}`

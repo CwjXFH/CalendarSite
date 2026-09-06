@@ -389,14 +389,17 @@ body.is-year::after {
 
 .day-cell--weekend {
   background: var(--weekend-bg);
+  border-radius: 0;
 }
 
 .day-cell--holiday {
   background: var(--holiday-bg);
+  border-radius: 0;
 }
 
 .day-cell--work {
   background: var(--work-bg);
+  border-radius: 0;
 }
 
 .day-cell--muted {
