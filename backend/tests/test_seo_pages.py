@@ -140,6 +140,16 @@ def test_homepage_pixel_icons_and_grid() -> None:
     assert ".ico--leaf" not in css
     assert "border-right: 1px solid var(--grid-line);\n  border-bottom: 1px solid var(--grid-line)" not in css
     assert ".day-cell--weekend {\n  background: transparent;" in css
+    assert ".day-cell--weekend .day-cell__lunar" in css
+    assert "box-shadow: inset 0 0 0 1.5px var(--pink);" not in css
+    assert ".holiday-bar__cta {\n  flex-shrink: 0;\n  padding: 6px 14px;\n  border-radius: 6px;\n  border: 0;\n  background: var(--pink-deep);\n  color: #fff;" in css
+    assert "min-height: 62px;" in css
+    assert "align-items: center;" in css
+    assert "picker=\"month\"" in page
+    assert "cal-nav__title" in page
+    assert "cal-nav__today" in page
+    assert "<Select" not in page
+    assert "holiday-bar__sub" in page
     assert ".day-cell__lunar--term {\n  color: var(--term);\n  font-weight: 650;" in css
     assert ".day-cell--selected:not(.day-cell--holiday):not(.day-cell--work):not(.day-cell--today) {\n  background: var(--selected-fill);" in css
     assert ".day-cell--today {\n  background: var(--today-fill);" in css

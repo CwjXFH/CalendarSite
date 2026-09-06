@@ -93,9 +93,14 @@ function cssToken(name: string): string {
 }
 assert.notEqual(cssToken('--today-fill'), cssToken('--work-bg'))
 assert.match(css, /\.day-cell \{[\s\S]*?border-radius: 0/)
+assert.match(css, /\.day-cell \{[\s\S]*?min-height: 62px/)
+assert.match(css, /\.day-cell \{[\s\S]*?align-items: center/)
 assert.match(css, /\.day-cell--today \{[\s\S]*?background: var\(--today-fill\)/)
-assert.doesNotMatch(css, /\.day-cell--holiday \{[^}]*border-radius:\s*[^0]/)
-assert.doesNotMatch(css, /\.day-cell--work \{[^}]*border-radius:\s*[^0]/)
+assert.match(css, /\.holiday-bar__cta \{[\s\S]*?background: var\(--pink-deep\)[\s\S]*?color: #fff/)
+assert.match(css, /\.day-cell--weekend \.day-cell__lunar/)
+assert.doesNotMatch(css, /box-shadow: inset 0 0 0 1\.5px var\(--pink\)/)
+assert.doesNotMatch(css, /\.day-cell--holiday \{[^}]*border-radius:\s*[^0;\s]/)
+assert.doesNotMatch(css, /\.day-cell--work \{[^}]*border-radius:\s*[^0;\s]/)
 assert.doesNotMatch(
   css,
   /\.day-cell--today:not\(\.day-cell--selected\) \.day-cell__solar \{[^}]*background: var\(--today-fill\)/,

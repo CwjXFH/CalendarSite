@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Select, Space, Spin, message } from 'antd'
+import { Button, DatePicker, Spin, message } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import { fetchCalendar, fetchDay, fetchHolidays, fetchMeta, isAbortError } from '../api'
 import DayCellView from '../components/DayCell'
 import {
@@ -25,7 +26,7 @@ import type { DayCell, DayDetail, HolidayPeriod } from '../types'
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
 const FETCH_DEBOUNCE_MS = 150
 
-function GiftMark({ className = 'holiday-bar__gift', size = 28 }: { className?: string; size?: number }) {
+function GiftMark({ className = 'holiday-bar__gift', size = 22 }: { className?: string; size?: number }) {
   return <img className={className} src="/gift.svg?v=20260906p" width={size} height={size} alt="" />
 }
 
@@ -205,16 +206,6 @@ export default function CalendarPage() {
     bootApplied.current = true
   }, [boot.q, days, periods, holidaysReady, minYear, maxYear, year, now])
 
-  const yearOptions = Array.from({ length: maxYear - minYear + 1 }, (_, i) => {
-    const value = minYear + i
-    return { value, label: `${value}年` }
-  })
-
-  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
-    value: i + 1,
-    label: `${i + 1}月`,
-  }))
-
   function shiftMonth(delta: number) {
     const date = new Date(year, month - 1 + delta, 1)
     const nextYear = date.getFullYear()
@@ -332,7 +323,7 @@ export default function CalendarPage() {
               <strong>
                 {holidayBar.period.name} · 还有 {daysBetween(today, holidayBar.period.start)} 天
               </strong>
-              <span>
+              <span className="holiday-bar__sub">
                 {formatRange(holidayBar.period.start, holidayBar.period.end)} · 共{' '}
                 {holidayBar.period.days} 天
                 {holidayBar.period.makeup.length > 0
@@ -350,7 +341,7 @@ export default function CalendarPage() {
             <span className="holiday-bar__tag">放假安排</span>
             <div className="holiday-bar__main">
               <strong>暂未公布后续长假</strong>
-              <span>以国务院办公厅通知为准</span>
+              <span className="holiday-bar__sub">以国务院办公厅通知为准</span>
             </div>
             <a className="holiday-bar__cta" href={`/fangjia/${year}`}>
               查看放假安排
@@ -361,22 +352,55 @@ export default function CalendarPage() {
 
       <section className="cal-stage">
         <div className="cal-stage__toolbar">
-          <Space wrap className="cal-nav">
-            <Button icon={<LeftOutlined />} onClick={() => shiftMonth(-1)} />
-            <Select value={year} options={yearOptions} onChange={setYear} style={{ width: 112 }} />
-            <Select value={month} options={monthOptions} onChange={setMonth} style={{ width: 88 }} />
-            <Button icon={<RightOutlined />} onClick={() => shiftMonth(1)} />
-            <Button
-              onClick={() => {
-                const n = new Date()
-                setYear(n.getFullYear())
-                setMonth(n.getMonth() + 1)
-                setSelected(todayStr(n))
-              }}
+          <div className="cal-nav">
+            <button
+              type="button"
+              className="cal-nav__arrow"
+              aria-label="上一月"
+              disabled={year === minYear && month === 1}
+              onClick={() => shiftMonth(-1)}
             >
-              今天
-            </Button>
-          </Space>
+              <LeftOutlined />
+            </button>
+            <DatePicker
+              className="cal-nav__title"
+              picker="month"
+              variant="borderless"
+              allowClear={false}
+              inputReadOnly
+              format="YYYY年M月"
+              value={dayjs(`${year}-${String(month).padStart(2, '0')}-01`)}
+              minDate={dayjs(`${minYear}-01-01`)}
+              maxDate={dayjs(`${maxYear}-12-31`)}
+              onChange={(d) => {
+                if (d) {
+                  setYear(d.year())
+                  setMonth(d.month() + 1)
+                }
+              }}
+              aria-label="选择年月"
+            />
+            <button
+              type="button"
+              className="cal-nav__arrow"
+              aria-label="下一月"
+              disabled={year === maxYear && month === 12}
+              onClick={() => shiftMonth(1)}
+            >
+              <RightOutlined />
+            </button>
+          </div>
+          <Button
+            className="cal-nav__today"
+            onClick={() => {
+              const n = new Date()
+              setYear(n.getFullYear())
+              setMonth(n.getMonth() + 1)
+              setSelected(todayStr(n))
+            }}
+          >
+            今天
+          </Button>
         </div>
         <div className="cal-stage__body">
           <Spin spinning={loading}>
@@ -412,7 +436,7 @@ export default function CalendarPage() {
                 法定节假日
               </li>
               <li>
-                <i className="legend__swatch legend__swatch--weekend" />
+                <i className="legend__swatch legend__swatch--weekend">休</i>
                 休息日
               </li>
               <li>
