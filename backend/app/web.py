@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from calendar import monthrange
 from datetime import date, timedelta
+from functools import lru_cache
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -62,6 +63,27 @@ def _fmt_dates(dates: list[date]) -> str:
     return "、".join(f"{d.month}月{d.day}日" for d in dates)
 
 
+def _breadcrumb_json(items: list[tuple[str, str]]) -> str:
+    entities = [
+        {
+            "@type": "ListItem",
+            "position": index,
+            "name": name,
+            "item": f"{SITE_URL}{path}",
+        }
+        for index, (name, path) in enumerate(items, start=1)
+    ]
+    return json.dumps(
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": entities,
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+
+
 def _faq_json(faqs: list[tuple[str, str]]) -> str:
     entities = [
         {
@@ -99,6 +121,7 @@ def _page(
     heading: str,
     year: int,
     faqs: list[tuple[str, str]],
+    breadcrumbs: list[tuple[str, str]] | None = None,
     extra: dict | None = None,
     max_age: int = 3600,
 ) -> HTMLResponse:
@@ -115,6 +138,7 @@ def _page(
         "weekdays": WEEKDAYS,
         "faqs": faqs,
         "faq_json": _faq_json(faqs) if faqs else "",
+        "breadcrumb_json": _breadcrumb_json(breadcrumbs) if breadcrumbs else "",
         "nav_fangjia": f"/fangjia/{year}",
         "nav_jieqi": f"/jieqi/{year}",
         "nav_year": f"/y/{year}",
@@ -351,6 +375,7 @@ async def year_page(request: Request, year: int) -> HTMLResponse:
         heading=f"{year}年公历农历日历",
         year=year,
         faqs=faqs,
+        breadcrumbs=[("万年历", "/"), (f"{year}年公历农历日历", f"/y/{year}")],
         extra={"months": months, "periods": periods, "terms": terms},
     )
 
@@ -417,6 +442,11 @@ async def month_page(request: Request, year: int, month: int) -> HTMLResponse:
         heading=f"{year}年{month}月公历农历",
         year=year,
         faqs=faqs,
+        breadcrumbs=[
+            ("万年历", "/"),
+            (f"{year}年", f"/y/{year}"),
+            (f"{month}月", f"/y/{year}/m/{month}"),
+        ],
         extra={
             "cal": cal,
             "prev_href": prev_href,
@@ -432,20 +462,21 @@ async def jieqi_year_page(request: Request, year: int) -> HTMLResponse:
     _require_year(year)
     terms = get_jieqi_year(year)
     faqs = _jieqi_year_faqs(year, terms)
-    lead = (
-        f"{year}年立春交节时间是{next(t for t in terms if t.name == '立春').datetime_text}（北京时间）。"
-        if any(t.name == "立春" for t in terms)
-        else f"{year}年二十四节气交节时间见下表（北京时间）。"
+    description = (
+        f"{year}年二十四节气时间表，列出小寒至冬至共 {len(terms)} 个节气的"
+        "公历交节日期与北京时间。"
     )
+    lead = f"{year}年二十四节气共 {len(terms)} 个，下表为各节气交节时间（北京时间）。"
     return _page(
         request,
         template="jieqi_year.html",
         title=f"{year}年二十四节气时间表 - 万年历",
-        description=lead,
+        description=description,
         path=f"/jieqi/{year}",
         heading=f"{year}年二十四节气时间表",
         year=year,
         faqs=faqs,
+        breadcrumbs=[("万年历", "/"), (f"{year}年二十四节气时间表", f"/jieqi/{year}")],
         extra={"terms": terms, "lead": lead, "slugs": JIEQI_SLUG},
     )
 
@@ -472,6 +503,11 @@ async def jieqi_term_page(request: Request, year: int, slug: str) -> HTMLRespons
         heading=f"{year}年{item.name}交节时间",
         year=year,
         faqs=faqs,
+        breadcrumbs=[
+            ("万年历", "/"),
+            (f"{year}年二十四节气", f"/jieqi/{year}"),
+            (item.name, f"/jieqi/{year}/{slug}"),
+        ],
         extra={
             "item": item,
             "lead": lead,
@@ -558,6 +594,7 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
         heading=f"{year}年放假安排与调休",
         year=year,
         faqs=faqs,
+        breadcrumbs=[("万年历", "/"), (f"{year}年放假安排", f"/fangjia/{year}")],
         extra={
             "lead": lead,
             "periods": periods,
@@ -567,37 +604,103 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
     )
 
 
-@router.get("/sitemap.xml")
-@limiter.limit("30/minute")
-async def sitemap(request: Request) -> PlainTextResponse:
-    today = date.today()
-    current = today.year
-    upper = max_year()
-    urls: list[tuple[str, str, str]] = [("/", "daily", "1.0")]
-    for year in holiday_years():
-        urls.append((f"/fangjia/{year}", "weekly" if year == current else "yearly", "0.9"))
-    for year in range(MIN_YEAR, upper + 1):
-        freq = "weekly" if year == current else "yearly"
-        prio = "0.8" if year == current else "0.5"
-        urls.append((f"/y/{year}", freq, prio))
-        urls.append((f"/jieqi/{year}", freq, "0.8" if year == current else "0.5"))
-        for month in range(1, 13):
-            urls.append((f"/y/{year}/m/{month}", freq, "0.6" if year == current else "0.4"))
-        for slug in JIEQI_SLUG.values():
-            urls.append((f"/jieqi/{year}/{slug}", freq, "0.6" if year == current else "0.4"))
-
+def _urlset(entries: list[tuple[str, str, str]]) -> str:
     parts = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
-    for path, freq, prio in urls:
+    for path, freq, prio in entries:
         loc = escape(f"{SITE_URL}{path}")
         parts.append(
             f"<url><loc>{loc}</loc><changefreq>{freq}</changefreq><priority>{prio}</priority></url>"
         )
     parts.append("</urlset>")
+    return "\n".join(parts)
+
+
+_SITEMAP_INDEX = "\n".join(
+    [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        f"<sitemap><loc>{escape(SITE_URL)}/sitemap-core.xml</loc></sitemap>",
+        f"<sitemap><loc>{escape(SITE_URL)}/sitemap-months.xml</loc></sitemap>",
+        f"<sitemap><loc>{escape(SITE_URL)}/sitemap-jieqi.xml</loc></sitemap>",
+        "</sitemapindex>",
+    ]
+)
+
+
+@lru_cache(maxsize=8)
+def _sitemap_urlset(kind: str, current: int, upper: int, holiday_key: str) -> str:
+    holidays = [int(item) for item in holiday_key.split(",") if item]
+    entries: list[tuple[str, str, str]] = []
+    if kind == "core":
+        entries.append(("/", "daily", "1.0"))
+        for year in holidays:
+            entries.append(
+                (f"/fangjia/{year}", "weekly" if year == current else "yearly", "0.9")
+            )
+        for year in range(MIN_YEAR, upper + 1):
+            freq = "weekly" if year == current else "yearly"
+            prio = "0.8" if year == current else "0.5"
+            entries.append((f"/y/{year}", freq, prio))
+            entries.append((f"/jieqi/{year}", freq, prio))
+    elif kind == "months":
+        for year in range(MIN_YEAR, upper + 1):
+            freq = "weekly" if year == current else "yearly"
+            prio = "0.6" if year == current else "0.4"
+            for month in range(1, 13):
+                entries.append((f"/y/{year}/m/{month}", freq, prio))
+    elif kind == "jieqi":
+        slugs = tuple(JIEQI_SLUG.values())
+        for year in range(MIN_YEAR, upper + 1):
+            freq = "weekly" if year == current else "yearly"
+            prio = "0.6" if year == current else "0.4"
+            for slug in slugs:
+                entries.append((f"/jieqi/{year}/{slug}", freq, prio))
+    else:
+        raise KeyError(kind)
+    return _urlset(entries)
+
+
+def _sitemap_xml(kind: str) -> str:
+    if kind == "index":
+        return _SITEMAP_INDEX
+    return _sitemap_urlset(
+        kind,
+        date.today().year,
+        max_year(),
+        ",".join(str(year) for year in holiday_years()),
+    )
+
+
+def _sitemap_response(kind: str) -> PlainTextResponse:
     return PlainTextResponse(
-        "\n".join(parts),
+        _sitemap_xml(kind),
         media_type="application/xml; charset=utf-8",
         headers={"Cache-Control": "public, max-age=86400"},
     )
+
+
+@router.api_route("/sitemap.xml", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def sitemap_index(request: Request) -> PlainTextResponse:
+    return _sitemap_response("index")
+
+
+@router.api_route("/sitemap-core.xml", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def sitemap_core(request: Request) -> PlainTextResponse:
+    return _sitemap_response("core")
+
+
+@router.api_route("/sitemap-months.xml", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def sitemap_months(request: Request) -> PlainTextResponse:
+    return _sitemap_response("months")
+
+
+@router.api_route("/sitemap-jieqi.xml", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def sitemap_jieqi(request: Request) -> PlainTextResponse:
+    return _sitemap_response("jieqi")
