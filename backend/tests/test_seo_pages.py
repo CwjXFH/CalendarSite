@@ -31,7 +31,9 @@ def test_year_page() -> None:
     assert response.status_code == 200
     text = response.text
     assert "2026年公历农历日历" in text
-    assert "/?y=2026&amp;m=9" in text
+    assert "/y/2026/m/9" in text
+    assert "/?y=2026&amp;m=9" not in text
+    assert "/?y=2026&m=9" not in text
     assert "月历" in text
     assert "常见问题" in text
     assert "FAQPage" in text
@@ -109,6 +111,15 @@ def test_leaf_svg_is_image() -> None:
     nginx = (root / "frontend" / "nginx.conf").read_text(encoding="utf-8")
     assert "location = /leaf.svg" in nginx
     assert "try_files /leaf.svg =404" in nginx
+
+
+def test_nginx_unknown_paths_are_real_404() -> None:
+    root = Path(__file__).resolve().parents[2]
+    nginx = (root / "frontend" / "nginx.conf").read_text(encoding="utf-8")
+    assert "try_files $uri $uri/ /index.html" not in nginx
+    assert "try_files $uri $uri/ =404;" in nginx
+    vite = (root / "frontend" / "vite.config.ts").read_text(encoding="utf-8")
+    assert "appType: 'mpa'" in vite
 
 
 def test_homepage_pixel_icons_and_grid() -> None:
