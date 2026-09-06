@@ -8,7 +8,15 @@
     <link rel="canonical" href="{{ canonical }}" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="stylesheet" href="/seo.css" />
+    <style>
+      @media (max-width: 840px) {
+        .nav-holiday,
+        .nav-jieqi { font-size: 0; line-height: 0; }
+        .nav-holiday::after { content: "放假"; font-size: 14px; line-height: 1.4; }
+        .nav-jieqi::after { content: "节气"; font-size: 14px; line-height: 1.4; }
+      }
+    </style>
+    <link rel="stylesheet" href="{{ seo_css_href }}" />
     <meta name="theme-color" content="#c47878" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="{{ title }}" />
@@ -39,7 +47,7 @@
     <div class="page">
       <header class="site-header">
         <a class="site-brand" href="/">
-          <span class="site-logo" aria-hidden="true"></span>
+          <img class="site-logo" src="/logo.svg" width="36" height="36" alt="" />
           <span class="site-name">万年历</span>
         </a>
         <form class="site-search" action="/" method="get" role="search">
@@ -49,11 +57,11 @@
         <nav class="site-nav" aria-label="站点">
           <a href="{{ nav_home }}"{% if nav_active == "month" %} class="is-active"{% endif %}>月历</a>
           <a href="{{ nav_year }}"{% if nav_active == "year" %} class="is-active"{% endif %}>年历</a>
-          <a href="{{ nav_fangjia }}"{% if nav_active == "fangjia" %} class="is-active"{% endif %}><span class="nav-full">放假安排</span><span class="nav-short">放假</span></a>
-          <a href="{{ nav_jieqi }}"{% if nav_active == "jieqi" %} class="is-active"{% endif %}><span class="nav-full">二十四节气</span><span class="nav-short">节气</span></a>
+          <a class="nav-holiday{% if nav_active == "fangjia" %} is-active{% endif %}" href="{{ nav_fangjia }}">放假安排</a>
+          <a class="nav-jieqi{% if nav_active == "jieqi" %} is-active{% endif %}" href="{{ nav_jieqi }}">二十四节气</a>
         </nav>
       </header>
-      <main>
+      <main class="page-main">
         <h1 class="page__heading">{{ heading }}</h1>
         {% block content %}{% endblock %}
       </main>

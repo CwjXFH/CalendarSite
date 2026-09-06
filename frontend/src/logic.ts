@@ -139,6 +139,27 @@ export function dayStatus(cell: DayCell): string {
   return '工作日'
 }
 
+export function searchAliases(q: string): string[] {
+  const text = q.trim()
+  if (text === '') {
+    return []
+  }
+  const aliases = [text]
+  if (text.endsWith('节气')) {
+    aliases.push(text.slice(0, -2))
+  } else if (text.endsWith('节') && text !== '春节') {
+    aliases.push(text.slice(0, -1))
+  }
+  return aliases
+}
+
+function nameMatches(name: string | null, aliases: string[]): boolean {
+  if (name == null || name === '') {
+    return false
+  }
+  return aliases.some((alias) => name === alias || name.includes(alias) || alias.includes(name))
+}
+
 export function resolveSearch(
   q: string,
   today: Date,
@@ -146,21 +167,26 @@ export function resolveSearch(
   days: DayCell[],
   periods: HolidayPeriod[],
 ): { href?: string; ymd?: Ymd } | null {
+  const aliases = searchAliases(q)
+  if (aliases.length === 0) {
+    return null
+  }
   const date = parseDateQuery(q, today)
   if (date) {
     return { ymd: date }
   }
-  if (JIEQI_SLUG[q]) {
-    return { href: `/jieqi/${year}/${JIEQI_SLUG[q]}` }
+  const jieqi = aliases.find((alias) => JIEQI_SLUG[alias])
+  if (jieqi) {
+    return { href: `/jieqi/${year}/${JIEQI_SLUG[jieqi]}` }
   }
   const dayHit = days.find(
-    (cell) => cell.festival === q || cell.solarTerm === q,
+    (cell) => nameMatches(cell.festival, aliases) || nameMatches(cell.solarTerm, aliases),
   )
   if (dayHit) {
     const [y, m, d] = dayHit.date.split('-').map(Number)
     return { ymd: { y, m, d } }
   }
-  const holiday = periods.find((p) => p.name.includes(q) || q.includes(p.name))
+  const holiday = periods.find((p) => nameMatches(p.name, aliases))
   if (holiday) {
     const [y, m, d] = holiday.start.split('-').map(Number)
     return { ymd: { y, m, d } }
