@@ -38,7 +38,7 @@ def test_year_page() -> None:
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
     assert 'class="page-main"' in text
-    assert 'href="/seo.css?v=20260906f"' in text
+    assert 'href="/seo.css?v=20260906g"' in text
     assert 'src="/logo.svg"' in text
     assert "放假安排放假" not in text
     assert "二十四节气节气" not in text

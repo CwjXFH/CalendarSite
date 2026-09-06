@@ -15,7 +15,9 @@
   --selected-fill: #ead6b0;
   --today-line: #d4b48a;
   --grid-line: #efe6dc;
-  --shadow: 0 8px 28px rgba(80, 56, 48, 0.07);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 24px rgba(80, 56, 48, 0.06);
 }
 
 * {
@@ -53,7 +55,7 @@ body {
   padding: 16px 20px 12px;
   background: var(--card);
   border: 1px solid var(--grid-line);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
@@ -71,6 +73,19 @@ body {
   min-width: 0;
   color: inherit;
   text-decoration: none;
+}
+
+.site-brand__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.site-lunar {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .site-logo {
@@ -104,6 +119,7 @@ body {
   border: 1px solid #e6ddd3;
   border-radius: 999px;
   background: #fff;
+  box-shadow: var(--shadow);
 }
 
 .site-search__icon {
@@ -203,7 +219,7 @@ body {
   padding: 12px 18px;
   background: var(--pink-soft);
   border: 1px solid #f0d2ce;
-  border-radius: 14px;
+  border-radius: var(--radius);
 }
 
 .holiday-bar__icon {
@@ -211,31 +227,15 @@ body {
   height: 28px;
   flex-shrink: 0;
   border-radius: 8px;
-  background: linear-gradient(180deg, #d96a6a 0%, var(--pink-deep) 100%);
-  position: relative;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+  background: var(--pink-deep);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.holiday-bar__icon::before {
-  content: "";
-  position: absolute;
-  left: 12px;
-  top: 4px;
-  width: 4px;
-  height: 20px;
-  background: #f7d9a8;
-  border-radius: 1px;
-}
-
-.holiday-bar__icon::after {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 11px;
-  width: 18px;
-  height: 4px;
-  background: #f7d9a8;
-  border-radius: 1px;
+.holiday-bar__icon svg {
+  display: block;
 }
 
 .holiday-bar__tag {
@@ -278,7 +278,7 @@ body {
   padding: 16px 16px 14px;
   background: var(--card);
   border: 1px solid var(--grid-line);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
@@ -292,6 +292,26 @@ body {
   justify-content: center;
 }
 
+.cal-nav .ant-btn {
+  border-radius: 10px;
+  border-color: #e6ddd3;
+  color: #5c5550;
+  box-shadow: none;
+  background: #fff;
+}
+
+.cal-nav .ant-btn:hover {
+  border-color: #d8cdc2 !important;
+  color: var(--text) !important;
+  background: #fffdf9 !important;
+}
+
+.cal-nav .ant-select-selector {
+  border-radius: 10px !important;
+  border-color: #e6ddd3 !important;
+  box-shadow: none !important;
+}
+
 .cal-stage__body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 148px;
@@ -303,7 +323,7 @@ body {
   padding: 14px 14px 16px;
   background: #fffdf9;
   border: 1px solid var(--grid-line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .legend__title {
@@ -352,9 +372,16 @@ body {
   box-shadow: inset 0 0 0 1px #d4c09a;
 }
 
+.legend__swatch--term,
+.legend__swatch--today {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
 .legend__swatch--term {
-  background: #e7f0e6;
-  box-shadow: inset 0 0 0 1px var(--term);
+  background: var(--term);
+  box-shadow: none;
 }
 
 .legend__swatch--today {
@@ -520,7 +547,7 @@ body {
   gap: 0;
   background: var(--card);
   border: 1px solid var(--grid-line);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
 }
@@ -566,16 +593,17 @@ body {
 .yiji {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
 }
 
 .yiji__row {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
+  min-height: 28px;
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.7;
   color: #555;
 }
 
@@ -707,7 +735,16 @@ body {
 }
 
 .tabbar {
-  display: none;
+  display: none !important;
+}
+
+@media (min-width: 841px) {
+  .tabbar {
+    display: none !important;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
 }
 
 @media (max-width: 840px) {
@@ -772,13 +809,13 @@ body {
   }
 
   .yiji {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10px 16px;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .yiji__row {
-    flex: 1 1 220px;
+    flex: none;
+    width: 100%;
   }
 
   .day-card__actions {
@@ -790,7 +827,7 @@ body {
   }
 
   .tabbar {
-    display: grid;
+    display: grid !important;
     grid-template-columns: repeat(4, 1fr);
     position: fixed;
     left: 0;
@@ -825,7 +862,7 @@ body {
 
 @media (max-width: 640px) {
   .page {
-    padding: 12px 10px;
+    padding: 12px 10px 72px;
     gap: 10px;
   }
 

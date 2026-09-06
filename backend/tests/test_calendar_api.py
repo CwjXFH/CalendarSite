@@ -139,3 +139,16 @@ def test_nearest_jieqi_on_term_day() -> None:
     item, passed = found
     assert item.name == "秋分"
     assert passed is False
+
+
+def test_nearest_jieqi_is_closest_not_farthest_past() -> None:
+    from datetime import date
+
+    from app.services.jieqi import nearest_jieqi
+
+    found = nearest_jieqi(date(2026, 9, 6))
+    assert found is not None
+    item, passed = found
+    assert item.name == "白露"
+    assert item.when == date(2026, 9, 7)
+    assert passed is False

@@ -140,14 +140,17 @@ export function clippedList(
   return { shown: items.slice(0, cap), rest: items.length - cap }
 }
 
-export function formatTermLine(term: {
-  name: string
-  date: string
-  time: string
-  passed: boolean
-}): string {
+export function formatTermLine(
+  term: {
+    name: string
+    date: string
+    time: string
+    passed: boolean
+  },
+  selected?: string,
+): string {
   const [, m, d] = term.date.split('-')
-  const mark = term.passed ? '已过' : '当日'
+  const mark = term.date === selected ? '当日' : term.passed ? '已过' : '未至'
   return `${term.name}（${mark}） ${Number(m)}月${Number(d)}日 ${term.time}`
 }
 
