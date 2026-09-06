@@ -23,8 +23,8 @@ import type { DayCell, DayDetail, HolidayPeriod } from '../types'
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
 const FETCH_DEBOUNCE_MS = 150
 
-function GiftMark() {
-  return <img className="holiday-bar__gift" src="/gift.svg?v=20260906i" width={28} height={28} alt="" />
+function GiftMark({ className = 'holiday-bar__gift', size = 28 }: { className?: string; size?: number }) {
+  return <img className={className} src="/gift.svg?v=20260906p" width={size} height={size} alt="" />
 }
 
 function applyYmd(
@@ -469,7 +469,7 @@ export default function CalendarPage() {
         <div className="day-card__aside">
           <div className="day-card__term">
             <p className="day-card__term-label">
-              <span className="ico ico--leaf" aria-hidden="true" />
+              <img className="day-card__leaf" src="/leaf.svg?v=20260906p" width={16} height={16} alt="" />
               节气
             </p>
             <p>
@@ -480,11 +480,11 @@ export default function CalendarPage() {
           </div>
           <div className="day-card__actions">
             <a className="day-card__btn day-card__btn--jieqi" href={jieqiHref}>
-              <span className="ico ico--leaf" aria-hidden="true" />
+              <img className="day-card__leaf" src="/leaf.svg?v=20260906p" width={16} height={16} alt="" />
               查看节气
             </a>
             <a className="day-card__btn" href={`/fangjia/${year}`}>
-              <span className="ico ico--cal" aria-hidden="true" />
+              <GiftMark className="day-card__ico" size={16} />
               放假安排
             </a>
           </div>

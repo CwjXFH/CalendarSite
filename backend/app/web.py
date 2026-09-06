@@ -738,6 +738,19 @@ async def gift_svg(request: Request) -> FileResponse:
     )
 
 
+@router.api_route("/leaf.svg", methods=["GET", "HEAD"])
+@limiter.limit("120/minute")
+async def leaf_svg(request: Request) -> FileResponse:
+    path = _public_file("leaf.svg")
+    if path is None:
+        raise HTTPException(status_code=404, detail="leaf.svg missing")
+    return FileResponse(
+        path,
+        media_type="image/svg+xml; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
 @router.api_route("/assets/logo.svg", methods=["GET", "HEAD"])
 @limiter.limit("120/minute")
 async def assets_logo_svg(request: Request) -> FileResponse:

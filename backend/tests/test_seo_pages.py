@@ -81,14 +81,46 @@ def test_gift_svg_is_image() -> None:
     assert "image/svg+xml" in response.headers["content-type"]
     body = response.content.decode("utf-8")
     assert "<svg" in body
-    assert "#D85D59" in body
-    assert "#FBE6A2" in body
-    assert "evenodd" in body
+    assert 'fill="none"' in body
+    assert 'stroke="#C45C5C"' in body
+    assert "#D85D59" not in body
+    assert "#FBE6A2" not in body
+    assert "evenodd" not in body
     assert "PlusOutlined" not in body
     root = Path(__file__).resolve().parents[2]
     frontend = (root / "frontend" / "public" / "gift.svg").read_text(encoding="utf-8")
     backend = (root / "backend" / "app" / "static" / "gift.svg").read_text(encoding="utf-8")
     assert frontend == backend == body
+
+
+def test_leaf_svg_is_image() -> None:
+    response = client.get("/leaf.svg")
+    assert response.status_code == 200
+    assert "image/svg+xml" in response.headers["content-type"]
+    body = response.content.decode("utf-8")
+    assert "<svg" in body
+    assert "<path" in body
+    assert "#5D8A62" in body
+    assert "border-radius" not in body
+    root = Path(__file__).resolve().parents[2]
+    frontend = (root / "frontend" / "public" / "leaf.svg").read_text(encoding="utf-8")
+    backend = (root / "backend" / "app" / "static" / "leaf.svg").read_text(encoding="utf-8")
+    assert frontend == backend == body
+    nginx = (root / "frontend" / "nginx.conf").read_text(encoding="utf-8")
+    assert "location = /leaf.svg" in nginx
+    assert "try_files /leaf.svg =404" in nginx
+
+
+def test_homepage_pixel_icons_and_grid() -> None:
+    root = Path(__file__).resolve().parents[2]
+    page = (root / "frontend" / "src" / "pages" / "CalendarPage.tsx").read_text(encoding="utf-8")
+    css = (root / "frontend" / "src" / "App.css").read_text(encoding="utf-8")
+    assert "/gift.svg?v=20260906p" in page
+    assert page.count("/leaf.svg?v=20260906p") == 2
+    assert "ico--leaf" not in page
+    assert ".ico--leaf" not in css
+    assert "border-right: 1px solid var(--grid-line);\n  border-bottom: 1px solid var(--grid-line)" not in css
+    assert ".day-cell--weekend {\n  background: transparent;" in css
 
 
 def test_month_page_september_2026() -> None:
