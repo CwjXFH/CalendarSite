@@ -24,7 +24,7 @@ const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
 const FETCH_DEBOUNCE_MS = 150
 
 function GiftMark() {
-  return <img className="holiday-bar__gift" src="/gift.svg" width={28} height={28} alt="" />
+  return <img className="holiday-bar__gift" src="/gift.svg?v=20260906i" width={28} height={28} alt="" />
 }
 
 function applyYmd(

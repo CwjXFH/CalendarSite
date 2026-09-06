@@ -1,10 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect x="8" y="26" width="48" height="30" rx="6" fill="#D75A5A"/>
-  <rect x="28" y="26" width="8" height="30" fill="#F6E5B5"/>
-  <rect x="8" y="37" width="48" height="8" fill="#F6E5B5"/>
-  <path fill="#F6E5B5" d="M32 22c-3.4-10.8-18.6-11.6-21.2-3.2C8.2 27.4 19.6 31 32 25.6z"/>
-  <path fill="#F6E5B5" d="M32 22c3.4-10.8 18.6-11.6 21.2-3.2C55.8 27.4 44.4 31 32 25.6z"/>
-  <rect x="26.5" y="17.5" width="11" height="10" rx="2.4" fill="#F6E5B5"/>
-  <path fill="#F6E5B5" d="M28.2 27.2 22 34.6l7.2-2.4 3-5z"/>
-  <path fill="#F6E5B5" d="M35.8 27.2 42 34.6l-7.2-2.4-3-5z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <clipPath id="box">
+      <rect x="12" y="22" width="40" height="40" rx="9"/>
+    </clipPath>
+  </defs>
+  <rect x="12" y="22" width="40" height="40" rx="9" fill="#D85D59"/>
+  <g clip-path="url(#box)">
+    <rect x="29.1" y="22" width="5.8" height="40" fill="#FBE6A2"/>
+    <rect x="12" y="39.1" width="40" height="5.8" fill="#FBE6A2"/>
+  </g>
+  <path fill="#FBE6A2" d="M28.5 23.3 20.6 34.8 24.1 33.1 25.8 36.5 31.6 23.5z"/>
+  <path fill="#FBE6A2" d="M35.5 23.3 43.4 34.8 39.9 33.1 38.2 36.5 32.4 23.5z"/>
+  <g transform="translate(18.4 13.4) rotate(-27)">
+    <path fill="#FBE6A2" fill-rule="evenodd" d="M-12.8 0A12.8 7.2 0 1 1 12.8 0A12.8 7.2 0 1 1-12.8 0Z M-7.2 0A7.2 3.4 0 1 1 7.2 0A7.2 3.4 0 1 1-7.2 0Z"/>
+  </g>
+  <g transform="translate(45.6 13.4) rotate(27)">
+    <path fill="#FBE6A2" fill-rule="evenodd" d="M-12.8 0A12.8 7.2 0 1 1 12.8 0A12.8 7.2 0 1 1-12.8 0Z M-7.2 0A7.2 3.4 0 1 1 7.2 0A7.2 3.4 0 1 1-7.2 0Z"/>
+  </g>
+  <rect x="24.8" y="18.1" width="14.4" height="6.6" rx="2.3" fill="#FBE6A2"/>
 </svg>
