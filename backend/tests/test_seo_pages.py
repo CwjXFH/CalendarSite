@@ -159,6 +159,13 @@ def test_homepage_pixel_icons_and_grid() -> None:
     assert ".day-cell--selected .day-cell__solar {\n  background: var(--selected-fill);" not in css
 
 
+def test_seo_html_routes_accept_head() -> None:
+    for path in ("/y/2026", "/y/2026/m/9", "/fangjia/2026", "/jieqi/2026", "/jieqi/2026/lichun"):
+        head = client.head(path)
+        assert head.status_code == 200, path
+        assert client.get(path).status_code == 200
+
+
 def test_month_page_september_2026() -> None:
     response = client.get("/y/2026/m/9")
     assert response.status_code == 200
