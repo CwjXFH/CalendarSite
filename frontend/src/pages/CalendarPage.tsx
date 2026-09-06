@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, DatePicker, Spin, message } from 'antd'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { DownOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { fetchCalendar, fetchDay, fetchHolidays, fetchMeta, isAbortError } from '../api'
 import DayCellView from '../components/DayCell'
@@ -368,6 +368,7 @@ export default function CalendarPage() {
               variant="borderless"
               allowClear={false}
               inputReadOnly
+              suffixIcon={<DownOutlined />}
               format="YYYY年M月"
               value={dayjs(`${year}-${String(month).padStart(2, '0')}-01`)}
               minDate={dayjs(`${minYear}-01-01`)}

@@ -146,6 +146,7 @@ def test_homepage_pixel_icons_and_grid() -> None:
     assert "min-height: 62px;" in css
     assert "align-items: center;" in css
     assert "picker=\"month\"" in page
+    assert "DownOutlined" in page
     assert "cal-nav__title" in page
     assert "cal-nav__today" in page
     assert "<Select" not in page

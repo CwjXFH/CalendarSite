@@ -339,6 +339,11 @@ body {
   width: 8.2em;
 }
 
+.cal-nav__title .ant-picker-suffix {
+  color: #8a8178;
+  font-size: 11px;
+}
+
 .cal-nav__today {
   grid-column: 3;
   justify-self: end;
@@ -347,6 +352,7 @@ body {
   color: #5c5550;
   box-shadow: none;
   background: #fff;
+  letter-spacing: 0;
 }
 
 .cal-nav__today:hover {
