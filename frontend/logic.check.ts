@@ -92,9 +92,10 @@ function cssToken(name: string): string {
   return match[1]
 }
 assert.notEqual(cssToken('--today-fill'), cssToken('--work-bg'))
+assert.match(css, /\.day-cell \{[\s\S]*?border-radius: 0/)
 assert.match(css, /\.day-cell--today \{[\s\S]*?background: var\(--today-fill\)/)
-assert.doesNotMatch(css, /\.day-cell--holiday \{[^}]*border-radius/)
-assert.doesNotMatch(css, /\.day-cell--work \{[^}]*border-radius/)
+assert.doesNotMatch(css, /\.day-cell--holiday \{[^}]*border-radius:\s*[^0]/)
+assert.doesNotMatch(css, /\.day-cell--work \{[^}]*border-radius:\s*[^0]/)
 assert.doesNotMatch(
   css,
   /\.day-cell--today:not\(\.day-cell--selected\) \.day-cell__solar \{[^}]*background: var\(--today-fill\)/,
