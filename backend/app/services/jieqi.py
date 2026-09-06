@@ -145,6 +145,8 @@ def get_jieqi_year(year: int) -> tuple[JieqiItem, ...]:
         if solar is None:
             continue
         info = get_day_info(solar.getYear(), solar.getMonth(), solar.getDay())
+        week_cn = solar.getWeekInChinese()
+        weekday = week_cn if week_cn.startswith("星期") else f"星期{week_cn}"
         items.append(
             JieqiItem(
                 name=name,
@@ -153,7 +155,7 @@ def get_jieqi_year(year: int) -> tuple[JieqiItem, ...]:
                 hour=solar.getHour(),
                 minute=solar.getMinute(),
                 second=solar.getSecond(),
-                weekday=solar.getWeekInChinese(),
+                weekday=weekday,
                 lunar_text=str(info["lunarText"]),
                 lunar_year_month=str(info["lunarYearMonth"]),
             )
