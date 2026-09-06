@@ -1,21 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <clipPath id="box">
-      <rect x="12" y="22" width="40" height="40" rx="9"/>
-    </clipPath>
-  </defs>
-  <rect x="12" y="22" width="40" height="40" rx="9" fill="#D85D59"/>
-  <g clip-path="url(#box)">
-    <rect x="29.1" y="22" width="5.8" height="40" fill="#FBE6A2"/>
-    <rect x="12" y="39.1" width="40" height="5.8" fill="#FBE6A2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <g stroke="#C45C5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6.2" y="13.6" width="19.6" height="13.2" rx="1.6"/>
+    <path d="M16 13.6v13.2"/>
+    <path d="M16 13.6c-2.1-5.2-8.4-5.4-8.6-1.7-.1 2.6 4 3.4 8.6 1.7z"/>
+    <path d="M16 13.6c2.1-5.2 8.4-5.4 8.6-1.7.1 2.6-4 3.4-8.6 1.7z"/>
   </g>
-  <path fill="#FBE6A2" d="M28.5 23.3 20.6 34.8 24.1 33.1 25.8 36.5 31.6 23.5z"/>
-  <path fill="#FBE6A2" d="M35.5 23.3 43.4 34.8 39.9 33.1 38.2 36.5 32.4 23.5z"/>
-  <g transform="translate(18.4 13.4) rotate(-27)">
-    <path fill="#FBE6A2" fill-rule="evenodd" d="M-12.8 0A12.8 7.2 0 1 1 12.8 0A12.8 7.2 0 1 1-12.8 0Z M-7.2 0A7.2 3.4 0 1 1 7.2 0A7.2 3.4 0 1 1-7.2 0Z"/>
-  </g>
-  <g transform="translate(45.6 13.4) rotate(27)">
-    <path fill="#FBE6A2" fill-rule="evenodd" d="M-12.8 0A12.8 7.2 0 1 1 12.8 0A12.8 7.2 0 1 1-12.8 0Z M-7.2 0A7.2 3.4 0 1 1 7.2 0A7.2 3.4 0 1 1-7.2 0Z"/>
-  </g>
-  <rect x="24.8" y="18.1" width="14.4" height="6.6" rx="2.3" fill="#FBE6A2"/>
 </svg>
