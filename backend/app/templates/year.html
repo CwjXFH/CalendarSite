@@ -12,7 +12,7 @@
 </p>
 <section class="cals cals--year">
   {% for cal in months %}
-  {{ month_cal(cal, weekdays, compact=true, href=cal.home_href) }}
+  {{ month_cal(cal, weekdays, compact=true) }}
   {% endfor %}
 </section>
 {{ faq_section(faqs) }}
