@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% from "macros.html" import month_cal, faq_section %}
 {% block content %}
-<p class="topic-links topic-links--year">
-  <a href="/fangjia/{{ year }}">放假安排</a>
-  <a href="/jieqi/{{ year }}">二十四节气</a>
+<p class="topic-capsules">
+  <a class="capsule capsule--fangjia" href="/fangjia/{{ year }}"><i class="ico ico--cal" aria-hidden="true"></i>放假安排</a>
+  <a class="capsule capsule--jieqi" href="/jieqi/{{ year }}"><i class="ico ico--leaf" aria-hidden="true"></i>二十四节气</a>
+</p>
+<p class="page__lede page__lede--center">
   {% if year > min_year %}<a href="/y/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
+  {% if year > min_year and year < max_year %} · {% endif %}
   {% if year < max_year %}<a href="/y/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
 </p>
-<section class="cals">
+<section class="cals cals--year">
   {% for cal in months %}
   {{ month_cal(cal, weekdays, compact=true, href=cal.home_href) }}
   {% endfor %}

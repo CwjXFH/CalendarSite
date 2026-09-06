@@ -96,3 +96,46 @@ def test_lunar_festivals() -> None:
     assert get_day_info(2026, 2, 11)["festival"] == "小年"
     assert get_day_info(2026, 1, 26)["festival"] == "腊八"
     assert get_day_info(2026, 3, 3)["festival"] == "元宵"
+
+
+def test_calendar_day_has_yiji() -> None:
+    mid = _day(2026, 9, "2026-09-24")
+    assert "年" in mid["ganZhi"] and "月" in mid["ganZhi"] and mid["ganZhi"].endswith("日")
+    assert mid["lunarMonthDay"] == "八月十四"
+    assert mid["yi"] != []
+    assert mid["ji"] != []
+    assert mid["nearestTerm"] is not None
+    assert mid["nearestTerm"]["name"] == "秋分"
+    assert mid["nearestTerm"]["passed"] is True
+    assert mid["nearestTerm"]["date"] == "2026-09-23"
+
+
+def test_day_detail_endpoint() -> None:
+    response = client.get("/api/v1/day", params={"date": "2026-09-24"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["date"] == "2026-09-24"
+    assert data["weekday"] == "星期四"
+    assert data["lunarMonthDay"] == "八月十四"
+    assert "丁酉月" in data["ganZhi"]
+    assert data["yi"] != []
+    assert data["ji"] != []
+    assert data["nearestTerm"]["name"] == "秋分"
+    assert data["nearestTerm"]["time"]
+    assert response.headers["cache-control"] == "public, max-age=86400"
+
+    bad = client.get("/api/v1/day", params={"date": "2026-13-40"})
+    assert bad.status_code == 400
+    assert bad.json()["code"] == "INVALID_DATE"
+
+
+def test_nearest_jieqi_on_term_day() -> None:
+    from datetime import date
+
+    from app.services.jieqi import nearest_jieqi
+
+    found = nearest_jieqi(date(2026, 9, 23))
+    assert found is not None
+    item, passed = found
+    assert item.name == "秋分"
+    assert passed is False

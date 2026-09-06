@@ -299,18 +299,28 @@ body {
   align-items: start;
 }
 
+.legend-box {
+  padding: 14px 14px 16px;
+  background: #fffdf9;
+  border: 1px solid var(--grid-line);
+  border-radius: 12px;
+}
+
+.legend__title {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
 .legend {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin: 0;
-  padding: 14px 14px 16px;
+  padding: 0;
   list-style: none;
   font-size: 13px;
   color: #5c5550;
-  background: #fffdf9;
-  border: 1px solid var(--grid-line);
-  border-radius: 12px;
 }
 
 .legend li {
@@ -506,7 +516,7 @@ body {
 
 .day-card {
   display: grid;
-  grid-template-columns: 168px minmax(0, 1fr);
+  grid-template-columns: 168px minmax(220px, 1.2fr) minmax(180px, 0.9fr);
   gap: 0;
   background: var(--card);
   border: 1px solid var(--grid-line);
@@ -538,39 +548,95 @@ body {
 }
 
 .day-card__lunar {
-  margin: 6px 0 2px;
-  font-size: 18px;
+  margin: 6px 0 10px;
+  font-size: 22px;
   font-weight: 650;
 }
 
-.day-card__panel {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.day-card__almanac,
+.day-card__aside {
+  min-height: 168px;
   padding: 16px 18px;
 }
 
-.day-card__cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr 0.8fr;
-  gap: 12px 16px;
+.day-card__almanac {
+  border-right: 1px solid var(--grid-line);
 }
 
-.day-card__cols h3 {
-  margin: 0 0 6px;
-  font-size: 13px;
-  color: var(--pink-deep);
+.yiji {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.day-card__cols p,
-.day-card__cols ul {
+.yiji__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.55;
   color: #555;
 }
 
-.day-card__cols ul {
-  padding-left: 16px;
+.yiji__dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.yiji__dot--yi {
+  background: #4caf50;
+}
+
+.yiji__dot--ji {
+  background: #e53935;
+}
+
+.yiji-empty {
+  margin: 12px 0 0;
+  min-height: 52px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.yiji__more {
+  align-self: flex-start;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--pink-deep);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.day-card__term {
+  margin-bottom: 16px;
+}
+
+.day-card__term-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--term);
+}
+
+.day-card__term p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
 }
 
 .day-card__actions {
@@ -597,6 +663,51 @@ body {
 .day-card__btn--jieqi {
   border-color: #9bb89a;
   color: var(--term);
+}
+
+.ico {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.ico--leaf {
+  border: 1.5px solid currentColor;
+  border-radius: 0 70% 40% 70%;
+  transform: rotate(-35deg);
+}
+
+.ico--leaf::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 1.5px;
+  height: 10px;
+  background: currentColor;
+  transform: rotate(35deg);
+}
+
+.ico--cal {
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  margin-top: 2px;
+}
+
+.ico--cal::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 3px;
+  height: 1.5px;
+  background: currentColor;
+}
+
+.tabbar {
+  display: none;
 }
 
 @media (max-width: 840px) {
@@ -631,19 +742,43 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .legend-box {
+    padding: 10px 12px;
+  }
+
   .legend {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px 14px;
-    padding: 10px 12px;
+  }
+
+  .site-nav {
+    display: none;
   }
 
   .day-card {
     grid-template-columns: 1fr;
   }
 
-  .day-card__cols {
-    grid-template-columns: 1fr;
+  .day-card__almanac {
+    border-right: 0;
+    border-top: 1px solid var(--grid-line);
+    border-bottom: 1px solid var(--grid-line);
+  }
+
+  .day-card__almanac,
+  .day-card__aside {
+    min-height: 0;
+  }
+
+  .yiji {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+
+  .yiji__row {
+    flex: 1 1 220px;
   }
 
   .day-card__actions {
@@ -652,6 +787,39 @@ body {
 
   .day-card__btn {
     flex: 1;
+  }
+
+  .tabbar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    background: #fffdf9;
+    border-top: 1px solid var(--grid-line);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .tabbar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    color: #5c5550;
+    text-decoration: none;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .tabbar a.is-active {
+    color: var(--pink-deep);
+    font-weight: 650;
+  }
+
+  .page {
+    padding-bottom: 72px;
   }
 }
 

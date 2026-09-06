@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {
+  clippedList,
   daysBetween,
+  formatTermLine,
   lunarParts,
   nextHolidayBar,
   parseDateQuery,
@@ -55,6 +57,14 @@ assert.deepEqual(
     isCurrentMonth: true,
   }),
   { ganZhi: '丙午年', monthDay: '八月十四' },
+)
+
+assert.deepEqual(clippedList(['a', 'b', 'c'], false, 2), { shown: ['a', 'b'], rest: 1 })
+assert.deepEqual(clippedList(['a', 'b', 'c'], true, 2), { shown: ['a', 'b', 'c'], rest: 0 })
+assert.deepEqual(clippedList([], false), { shown: [], rest: 0 })
+assert.equal(
+  formatTermLine({ name: '秋分', date: '2026-09-23', time: '21:04', passed: true }),
+  '秋分（已过） 9月23日 21:04',
 )
 
 console.log('logic.check ok')

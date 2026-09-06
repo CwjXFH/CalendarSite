@@ -117,11 +117,38 @@ export function formatMakeup(dates: string[]): string {
 }
 
 export function lunarParts(cell: DayCell): { ganZhi: string; monthDay: string } {
+  if (cell.ganZhi && cell.lunarMonthDay) {
+    return { ganZhi: cell.ganZhi, monthDay: cell.lunarMonthDay }
+  }
   const idx = cell.lunarYearMonth.indexOf('年')
   const ganZhi = idx >= 0 ? `${cell.lunarYearMonth.slice(0, idx)}年` : cell.lunarYearMonth
   const lunarMonth = idx >= 0 ? cell.lunarYearMonth.slice(idx + 1) : ''
   const lunarDay = cell.lunarText.endsWith('月') ? '初一' : cell.lunarText
   return { ganZhi, monthDay: `${lunarMonth}${lunarDay}` }
+}
+
+export const YIJI_PREVIEW = 8
+
+export function clippedList(
+  items: string[],
+  expanded: boolean,
+  cap = YIJI_PREVIEW,
+): { shown: string[]; rest: number } {
+  if (expanded || items.length <= cap) {
+    return { shown: items, rest: 0 }
+  }
+  return { shown: items.slice(0, cap), rest: items.length - cap }
+}
+
+export function formatTermLine(term: {
+  name: string
+  date: string
+  time: string
+  passed: boolean
+}): string {
+  const [, m, d] = term.date.split('-')
+  const mark = term.passed ? '已过' : '当日'
+  return `${term.name}（${mark}） ${Number(m)}月${Number(d)}日 ${term.time}`
 }
 
 export function lunarDetail(cell: DayCell): string {

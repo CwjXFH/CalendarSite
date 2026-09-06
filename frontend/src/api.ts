@@ -1,4 +1,4 @@
-import type { CalendarResponse, HolidaysResponse, MetaResponse } from './types'
+import type { CalendarResponse, DayDetail, HolidaysResponse, MetaResponse } from './types'
 
 export function isAbortError(err: unknown): boolean {
   if (err instanceof DOMException && err.name === 'AbortError') {
@@ -46,4 +46,8 @@ export function fetchHolidays(
   signal?: AbortSignal,
 ): Promise<HolidaysResponse> {
   return getJson<HolidaysResponse>(`/api/v1/holidays?year=${year}`, signal)
+}
+
+export function fetchDay(date: string, signal?: AbortSignal): Promise<DayDetail> {
+  return getJson<DayDetail>(`/api/v1/day?date=${date}`, signal)
 }

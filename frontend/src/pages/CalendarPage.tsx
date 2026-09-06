@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Select, Space, Spin, message } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { fetchCalendar, fetchHolidays, fetchMeta, isAbortError } from '../api'
+import { fetchCalendar, fetchDay, fetchHolidays, fetchMeta, isAbortError } from '../api'
 import DayCellView from '../components/DayCell'
 import {
   JIEQI_SLUG,
-  dayStatus,
+  clippedList,
   daysBetween,
   formatMakeup,
   formatRange,
+  formatTermLine,
   lunarParts,
   nextHolidayBar,
   parseDateQuery,
@@ -17,7 +18,7 @@ import {
   todayStr,
   weekdayLabel,
 } from '../logic'
-import type { DayCell, HolidayPeriod } from '../types'
+import type { DayCell, DayDetail, HolidayPeriod } from '../types'
 
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']
 const FETCH_DEBOUNCE_MS = 150
@@ -70,6 +71,8 @@ export default function CalendarPage() {
   const [searchNote, setSearchNote] = useState<{ ok: boolean; text: string } | null>(null)
   const [periods, setPeriods] = useState<HolidayPeriod[]>([])
   const [holidaysReady, setHolidaysReady] = useState(false)
+  const [detail, setDetail] = useState<DayDetail | null>(null)
+  const [yijiMore, setYijiMore] = useState(false)
   const isFirstFetch = useRef(true)
   const bootApplied = useRef(boot.q === '')
   const today = todayStr(now)
@@ -137,6 +140,26 @@ export default function CalendarPage() {
       })
     return () => controller.abort()
   }, [year, todayYear])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    setYijiMore(false)
+    fetchDay(selected, controller.signal)
+      .then((data) => {
+        if (controller.signal.aborted === false) {
+          setDetail(data)
+        }
+      })
+      .catch((err: unknown) => {
+        if (isAbortError(err)) {
+          return
+        }
+        if (controller.signal.aborted === false) {
+          setDetail(null)
+        }
+      })
+    return () => controller.abort()
+  }, [selected])
 
   useEffect(() => {
     setSelected((current) => {
@@ -226,14 +249,23 @@ export default function CalendarPage() {
   const headerLunar = selectedCell?.lunarYearMonth || lunarYearMonth
   const holidayBar = useMemo(() => nextHolidayBar(periods, today), [periods, today])
   const lunar = selectedCell ? lunarParts(selectedCell) : null
-
-  const nearby = days
-    .filter((d) => d.date > selected && (d.festival || d.solarTerm || d.isLegalHoliday))
-    .slice(0, 3)
-  const monthPoints = days.filter(
-    (d) => d.isCurrentMonth && (d.solarTerm || d.isLegalHoliday || d.festival),
-  )
-  const titleExtra = selectedCell?.festival || selectedCell?.solarTerm
+  const titleExtra = detail?.festival || detail?.solarTerm || selectedCell?.festival || selectedCell?.solarTerm
+  const ganZhi = detail?.ganZhi || lunar?.ganZhi || ''
+  const monthDay = detail?.lunarMonthDay || lunar?.monthDay || headerLunar
+  const weekday = detail?.weekday || weekdayLabel(selected)
+  const yi = detail?.yi ?? selectedCell?.yi ?? []
+  const ji = detail?.ji ?? selectedCell?.ji ?? []
+  const nearestTerm = detail?.nearestTerm ?? selectedCell?.nearestTerm ?? null
+  const yiView = clippedList(yi, yijiMore)
+  const jiView = clippedList(ji, yijiMore)
+  const jieqiHref =
+    (detail?.solarTerm && JIEQI_SLUG[detail.solarTerm]
+      ? `/jieqi/${year}/${JIEQI_SLUG[detail.solarTerm]}`
+      : null) ||
+    (selectedCell?.solarTerm && JIEQI_SLUG[selectedCell.solarTerm]
+      ? `/jieqi/${year}/${JIEQI_SLUG[selectedCell.solarTerm]}`
+      : null) ||
+    (nearestTerm ? `/jieqi/${nearestTerm.date.slice(0, 4)}/${nearestTerm.slug}` : `/jieqi/${year}`)
 
   return (
     <div className="page">
@@ -368,28 +400,31 @@ export default function CalendarPage() {
               </div>
             </div>
           </Spin>
-          <ul className="legend">
-            <li>
-              <i className="legend__swatch legend__swatch--holiday" />
-              法定节假日
-            </li>
-            <li>
-              <i className="legend__swatch legend__swatch--weekend" />
-              休息日
-            </li>
-            <li>
-              <i className="legend__swatch legend__swatch--work" />
-              调休班
-            </li>
-            <li>
-              <i className="legend__swatch legend__swatch--term" />
-              节气
-            </li>
-            <li>
-              <i className="legend__swatch legend__swatch--today" />
-              今天
-            </li>
-          </ul>
+          <aside className="legend-box" aria-label="图例">
+            <h3 className="legend__title">图例</h3>
+            <ul className="legend">
+              <li>
+                <i className="legend__swatch legend__swatch--holiday" />
+                法定节假日
+              </li>
+              <li>
+                <i className="legend__swatch legend__swatch--weekend" />
+                休息日
+              </li>
+              <li>
+                <i className="legend__swatch legend__swatch--work" />
+                调休班
+              </li>
+              <li>
+                <i className="legend__swatch legend__swatch--term" />
+                节气
+              </li>
+              <li>
+                <i className="legend__swatch legend__swatch--today" />
+                今天
+              </li>
+            </ul>
+          </aside>
         </div>
       </section>
 
@@ -401,61 +436,53 @@ export default function CalendarPage() {
           </p>
           <p className="day-card__num">{selectedCell ? selectedCell.day : selected.slice(8)}</p>
           <p className="day-card__dow">
-            {weekdayLabel(selected)}
+            {weekday} / {monthDay}
             {selected === today ? ' · 今天' : ''}
           </p>
-          <p className="day-card__lunar">{lunar ? lunar.monthDay : headerLunar}</p>
-          {lunar ? <p className="day-card__ganz">{lunar.ganZhi}</p> : null}
         </div>
-        <div className="day-card__panel">
-          <div className="day-card__cols">
-            <div>
-              <h3>临近</h3>
-              {nearby.length > 0 ? (
-                <ul>
-                  {nearby.map((cell) => {
-                    const name = cell.festival || cell.solarTerm || '节日'
-                    const delta = daysBetween(selected, cell.date)
-                    const label = delta === 1 ? `明天${name}` : `距${name} ${delta} 天`
-                    return <li key={`${cell.date}-${name}`}>{label}</li>
-                  })}
-                </ul>
-              ) : (
-                <p>本月余下暂无节日或节气</p>
-              )}
+        <div className="day-card__almanac">
+          {ganZhi ? <p className="day-card__ganz">{ganZhi}</p> : null}
+          <p className="day-card__lunar">{monthDay}</p>
+          {yi.length === 0 && ji.length === 0 ? (
+            <p className="yiji-empty">暂无宜忌</p>
+          ) : (
+            <div className="yiji">
+              <p className="yiji__row">
+                <span className="yiji__dot yiji__dot--yi">宜</span>
+                <span>{yiView.shown.length > 0 ? yiView.shown.join(' ') : '暂无宜忌'}</span>
+              </p>
+              <p className="yiji__row">
+                <span className="yiji__dot yiji__dot--ji">忌</span>
+                <span>{jiView.shown.length > 0 ? jiView.shown.join(' ') : '暂无宜忌'}</span>
+              </p>
+              {yiView.rest > 0 || jiView.rest > 0 ? (
+                <button type="button" className="yiji__more" onClick={() => setYijiMore((v) => v === false)}>
+                  {yijiMore ? '收起' : '更多'}
+                </button>
+              ) : null}
             </div>
-            <div>
-              <h3>本月</h3>
-              {monthPoints.length > 0 ? (
-                <ul>
-                  {monthPoints.map((cell) => (
-                    <li key={`${cell.date}-m`}>
-                      {cell.day}日 {cell.festival || cell.solarTerm || '法定假日'}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>本月暂无节气或法定假日</p>
-              )}
-            </div>
-            <div>
-              <h3>状态</h3>
-              <p>{selectedCell ? dayStatus(selectedCell) : '—'}</p>
-            </div>
+          )}
+        </div>
+        <div className="day-card__aside">
+          <div className="day-card__term">
+            <p className="day-card__term-label">
+              <span className="ico ico--leaf" aria-hidden="true" />
+              节气
+            </p>
+            <p>
+              {nearestTerm
+                ? formatTermLine(nearestTerm)
+                : selectedCell?.solarTerm || '本月暂无交节信息'}
+            </p>
           </div>
           <div className="day-card__actions">
-            <a
-              className="day-card__btn day-card__btn--jieqi"
-              href={
-                selectedCell?.solarTerm && JIEQI_SLUG[selectedCell.solarTerm]
-                  ? `/jieqi/${year}/${JIEQI_SLUG[selectedCell.solarTerm]}`
-                  : `/jieqi/${year}`
-              }
-            >
+            <a className="day-card__btn day-card__btn--jieqi" href={jieqiHref}>
+              <span className="ico ico--leaf" aria-hidden="true" />
               查看节气
             </a>
             <a className="day-card__btn" href={`/fangjia/${year}`}>
-              查看放假安排
+              <span className="ico ico--cal" aria-hidden="true" />
+              放假安排
             </a>
           </div>
         </div>
@@ -475,6 +502,14 @@ export default function CalendarPage() {
           沪公网安备31011302009659号
         </a>
       </footer>
+      <nav className="tabbar" aria-label="主导航">
+        <a href="/" className="is-active">
+          月历
+        </a>
+        <a href={`/y/${year}`}>年历</a>
+        <a href={`/fangjia/${year}`}>放假安排</a>
+        <a href={`/jieqi/${year}`}>二十四节气</a>
+      </nav>
     </div>
   )
 }
