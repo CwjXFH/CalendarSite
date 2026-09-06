@@ -8,7 +8,15 @@
     <link rel="canonical" href="{{ canonical }}" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="stylesheet" href="/seo.css" />
+    <style>
+      .nav-full { display: inline !important; }
+      .nav-short { display: none !important; }
+      @media (max-width: 840px) {
+        .nav-full { display: none !important; }
+        .nav-short { display: inline !important; }
+      }
+    </style>
+    <link rel="stylesheet" href="/seo.css?v=20260906" />
     <meta name="theme-color" content="#c47878" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="{{ title }}" />
@@ -53,7 +61,7 @@
           <a href="{{ nav_jieqi }}"{% if nav_active == "jieqi" %} class="is-active"{% endif %}><span class="nav-full">二十四节气</span><span class="nav-short">节气</span></a>
         </nav>
       </header>
-      <main>
+      <main class="page-main">
         <h1 class="page__heading">{{ heading }}</h1>
         {% block content %}{% endblock %}
       </main>

@@ -135,6 +135,23 @@ body {
   outline: none;
 }
 
+.site-search-wrap {
+  min-width: 0;
+}
+
+.site-search__note {
+  margin: 6px 4px 0;
+  font-size: 12px;
+}
+
+.site-search__note.is-ok {
+  color: var(--pink-deep);
+}
+
+.site-search__note.is-empty {
+  color: #a15a3a;
+}
+
 .site-nav {
   display: flex;
   flex-wrap: wrap;
@@ -159,8 +176,12 @@ body {
   font-weight: 600;
 }
 
+.nav-full {
+  display: inline !important;
+}
+
 .nav-short {
-  display: none;
+  display: none !important;
 }
 
 .holiday-bar {
@@ -485,11 +506,11 @@ body {
   }
 
   .nav-full {
-    display: none;
+    display: none !important;
   }
 
   .nav-short {
-    display: inline;
+    display: inline !important;
   }
 
   .holiday-bar {

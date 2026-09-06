@@ -37,6 +37,18 @@ def test_year_page() -> None:
     assert "BreadcrumbList" in text
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
+    assert 'class="page-main"' in text
+    assert ".nav-short { display: none !important; }" in text
+    assert "@media (max-width: 840px)" in text
+
+
+def test_seo_css_is_served() -> None:
+    response = client.get("/seo.css")
+    assert response.status_code == 200
+    assert "text/css" in response.headers["content-type"]
+    assert ".nav-short" in response.text
+    assert ".page-main" in response.text
+    assert ".nav-full" in response.text
 
 
 def test_month_page_september_2026() -> None:

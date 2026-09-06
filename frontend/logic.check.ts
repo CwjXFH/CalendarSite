@@ -30,5 +30,14 @@ assert.deepEqual(
   resolveSearch('国庆', today, 2026, [], periods)?.ymd,
   { y: 2026, m: 10, d: 1 },
 )
+assert.deepEqual(
+  resolveSearch('中秋', today, 2026, [], periods)?.ymd,
+  { y: 2026, m: 9, d: 25 },
+)
+assert.deepEqual(
+  resolveSearch('中秋节', today, 2026, [], periods)?.ymd,
+  { y: 2026, m: 9, d: 25 },
+)
+assert.equal(resolveSearch('不存在的节', today, 2026, [], periods), null)
 
 console.log('logic.check ok')

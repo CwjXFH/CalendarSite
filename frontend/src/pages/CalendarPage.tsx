@@ -67,6 +67,7 @@ export default function CalendarPage() {
   })
   const [loading, setLoading] = useState(false)
   const [query, setQuery] = useState(boot.q)
+  const [searchNote, setSearchNote] = useState<{ ok: boolean; text: string } | null>(null)
   const [periods, setPeriods] = useState<HolidayPeriod[]>([])
   const [holidaysReady, setHolidaysReady] = useState(false)
   const isFirstFetch = useRef(true)
@@ -173,6 +174,9 @@ export default function CalendarPage() {
       window.location.replace(hit.href)
     } else if (hit?.ymd) {
       applyYmd(hit.ymd, minYear, maxYear, setYear, setMonth, setSelected)
+      setSearchNote({ ok: true, text: `已定位到 ${hit.ymd.m}月${hit.ymd.d}日` })
+    } else {
+      setSearchNote({ ok: false, text: `未找到「${boot.q}」，试试日期、节日或节气名` })
     }
     bootApplied.current = true
   }, [boot.q, days, periods, holidaysReady, minYear, maxYear, year, now])
@@ -201,18 +205,21 @@ export default function CalendarPage() {
   function onSearch(raw: string) {
     const q = raw.trim()
     if (q === '') {
+      setSearchNote(null)
       return
     }
     const hit = resolveSearch(q, now, year, days, periods)
     if (hit?.href) {
+      setSearchNote({ ok: true, text: `正在打开「${q}」` })
       window.location.href = hit.href
       return
     }
     if (hit?.ymd) {
       applyYmd(hit.ymd, minYear, maxYear, setYear, setMonth, setSelected)
+      setSearchNote({ ok: true, text: `已定位到 ${hit.ymd.m}月${hit.ymd.d}日` })
       return
     }
-    message.info('未找到对应日期、节日或节气')
+    setSearchNote({ ok: false, text: `未找到「${q}」，试试日期、节日或节气名` })
   }
 
   const selectedCell = days.find((d) => d.date === selected)
@@ -237,23 +244,33 @@ export default function CalendarPage() {
             {headerLunar ? <span className="site-lunar">{headerLunar}</span> : null}
           </span>
         </a>
-        <form
-          className="site-search"
-          role="search"
-          onSubmit={(ev) => {
-            ev.preventDefault()
-            onSearch(query)
-          }}
-        >
-          <span className="site-search__icon" aria-hidden="true" />
-          <input
-            type="search"
-            value={query}
-            onChange={(ev) => setQuery(ev.target.value)}
-            placeholder="搜索日期 / 节日 / 节气"
-            aria-label="搜索日期、节日或节气"
-          />
-        </form>
+        <div className="site-search-wrap">
+          <form
+            className="site-search"
+            role="search"
+            onSubmit={(ev) => {
+              ev.preventDefault()
+              onSearch(query)
+            }}
+          >
+            <span className="site-search__icon" aria-hidden="true" />
+            <input
+              type="search"
+              value={query}
+              onChange={(ev) => {
+                setQuery(ev.target.value)
+                setSearchNote(null)
+              }}
+              placeholder="搜索日期 / 节日 / 节气"
+              aria-label="搜索日期、节日或节气"
+            />
+          </form>
+          {searchNote ? (
+            <p className={`site-search__note${searchNote.ok ? ' is-ok' : ' is-empty'}`} role="status">
+              {searchNote.text}
+            </p>
+          ) : null}
+        </div>
         <nav className="site-nav" aria-label="站点">
           <a href="/" className="is-active">
             月历

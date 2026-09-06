@@ -8,7 +8,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import HTMLResponse, PlainTextResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from app.api.v1 import limiter
@@ -683,6 +683,30 @@ def _sitemap_response(kind: str) -> PlainTextResponse:
     return PlainTextResponse(
         _sitemap_xml(kind),
         media_type="application/xml; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+def _seo_css_path() -> Path | None:
+    here = Path(__file__).resolve().parent
+    for candidate in (
+        here / "static" / "seo.css",
+        here.parents[2] / "frontend" / "public" / "seo.css",
+    ):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+@router.get("/seo.css")
+@limiter.limit("120/minute")
+async def seo_css(request: Request) -> FileResponse:
+    path = _seo_css_path()
+    if path is None:
+        raise HTTPException(status_code=404, detail="seo.css missing")
+    return FileResponse(
+        path,
+        media_type="text/css",
         headers={"Cache-Control": "public, max-age=86400"},
     )
 
