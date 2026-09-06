@@ -336,7 +336,7 @@ def _jieqi_term_faqs(year: int, item: JieqiItem, prev: JieqiItem | None, nxt: Ji
     return faqs[:8]
 
 
-@router.get("/y/{year}", response_class=HTMLResponse)
+@router.api_route("/y/{year}", methods=["GET", "HEAD"], response_class=HTMLResponse)
 @limiter.limit("60/minute")
 async def year_page(request: Request, year: int) -> HTMLResponse:
     _require_year(year)
@@ -385,7 +385,7 @@ async def year_page(request: Request, year: int) -> HTMLResponse:
     )
 
 
-@router.get("/y/{year}/m/{month}", response_class=HTMLResponse)
+@router.api_route("/y/{year}/m/{month}", methods=["GET", "HEAD"], response_class=HTMLResponse)
 @limiter.limit("60/minute")
 async def month_page(request: Request, year: int, month: int) -> HTMLResponse:
     _require_year(year)
@@ -462,7 +462,7 @@ async def month_page(request: Request, year: int, month: int) -> HTMLResponse:
     )
 
 
-@router.get("/jieqi/{year}", response_class=HTMLResponse)
+@router.api_route("/jieqi/{year}", methods=["GET", "HEAD"], response_class=HTMLResponse)
 @limiter.limit("60/minute")
 async def jieqi_year_page(request: Request, year: int) -> HTMLResponse:
     _require_year(year)
@@ -487,7 +487,7 @@ async def jieqi_year_page(request: Request, year: int) -> HTMLResponse:
     )
 
 
-@router.get("/jieqi/{year}/{slug}", response_class=HTMLResponse)
+@router.api_route("/jieqi/{year}/{slug}", methods=["GET", "HEAD"], response_class=HTMLResponse)
 @limiter.limit("60/minute")
 async def jieqi_term_page(request: Request, year: int, slug: str) -> HTMLResponse:
     _require_year(year)
@@ -576,7 +576,7 @@ async def fangjia_ics(request: Request, year: int) -> Response:
     )
 
 
-@router.get("/fangjia/{year}", response_class=HTMLResponse)
+@router.api_route("/fangjia/{year}", methods=["GET", "HEAD"], response_class=HTMLResponse)
 @limiter.limit("60/minute")
 async def fangjia_page(request: Request, year: int) -> HTMLResponse:
     _require_year(year)
