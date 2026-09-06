@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, HTTPException, Query, Request, Response
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -5,12 +7,13 @@ from slowapi.util import get_remote_address
 from app.config import MIN_YEAR, max_year
 from app.schemas import (
     CalendarResponse,
+    DayDetailResponse,
     HealthResponse,
     HolidayPeriodOut,
     HolidaysResponse,
     MetaResponse,
 )
-from app.services.calendar import get_calendar_cached
+from app.services.calendar import get_calendar_cached, get_day_detail
 from app.services.holiday import group_holiday_periods
 
 router = APIRouter(prefix="/api/v1")
@@ -50,6 +53,33 @@ async def calendar(
         )
     response.headers["Cache-Control"] = "public, max-age=86400"
     return get_calendar_cached(year, month)
+
+
+@router.get("/day", response_model=DayDetailResponse)
+@limiter.limit("60/minute")
+async def day(
+    request: Request,
+    response: Response,
+    date: str = Query(..., description="公历日期 YYYY-MM-DD"),
+) -> DayDetailResponse:
+    try:
+        current = datetime.strptime(date, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail={"code": "INVALID_DATE", "message": "date must be YYYY-MM-DD"},
+        )
+    upper = max_year()
+    if current.year < MIN_YEAR or current.year > upper:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "INVALID_YEAR",
+                "message": f"year must be between {MIN_YEAR} and {upper}",
+            },
+        )
+    response.headers["Cache-Control"] = "public, max-age=86400"
+    return get_day_detail(current)
 
 
 @router.get("/holidays", response_model=HolidaysResponse)

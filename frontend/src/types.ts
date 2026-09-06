@@ -1,14 +1,44 @@
+export interface NearestTerm {
+  name: string
+  slug: string
+  date: string
+  time: string
+  passed: boolean
+}
+
 export interface DayCell {
   date: string
   day: number
   lunarText: string
   lunarYearMonth: string
+  lunarMonthDay?: string
+  ganZhi?: string
   festival: string | null
   solarTerm: string | null
+  yi?: string[]
+  ji?: string[]
+  nearestTerm?: NearestTerm | null
   isWeekend: boolean
   isLegalHoliday: boolean
   isMakeupWorkday: boolean
   isCurrentMonth: boolean
+}
+
+export interface DayDetail {
+  date: string
+  year: number
+  month: number
+  day: number
+  weekday: string
+  lunarText: string
+  lunarYearMonth: string
+  lunarMonthDay: string
+  ganZhi: string
+  festival: string | null
+  solarTerm: string | null
+  yi: string[]
+  ji: string[]
+  nearestTerm: NearestTerm | null
 }
 
 export interface CalendarResponse {

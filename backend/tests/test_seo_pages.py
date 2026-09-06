@@ -38,12 +38,16 @@ def test_year_page() -> None:
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
     assert 'class="page-main"' in text
-    assert 'href="/seo.css?v=' in text
+    assert 'href="/seo.css?v=20260906f"' in text
     assert 'src="/logo.svg"' in text
     assert "放假安排放假" not in text
     assert "二十四节气节气" not in text
     assert "nav-short" not in text
-    assert 'content: "放假"' in text
+    assert 'class="tabbar"' in text
+    assert "cals--year" in text
+    assert "topic-capsules" in text
+    assert "暂无宜忌" not in text
+    assert "yiji" not in text
 
 
 def test_seo_css_is_served() -> None:
@@ -53,6 +57,8 @@ def test_seo_css_is_served() -> None:
     assert response.headers["cache-control"] == "public, max-age=600"
     assert ".page-main" in response.text
     assert ".nav-holiday" in response.text
+    assert ".tabbar" in response.text
+    assert ".cals--year" in response.text
     assert ".nav-short" not in response.text
 
 
@@ -97,6 +103,8 @@ def test_fangjia_2026() -> None:
     assert "下载 ICS" not in text
     assert "添加到手机日历" not in text
     assert ".ics" not in text
+    assert "暂无宜忌" not in text
+    assert "yiji" not in text
 
 
 def test_jieqi_2026_table_and_term() -> None:
@@ -115,6 +123,8 @@ def test_jieqi_2026_table_and_term() -> None:
     assert "立春交节" not in desc
     assert og == desc
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/jieqi/2026"
+    assert "暂无宜忌" not in text
+    assert "yiji" not in text
 
     term = client.get("/jieqi/2026/lichun")
     assert term.status_code == 200

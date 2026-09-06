@@ -26,7 +26,7 @@ from app.services.jieqi import (
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
-SEO_CSS_VER = "20260906e"
+SEO_CSS_VER = "20260906f"
 
 WEEKDAYS = ("一", "二", "三", "四", "五", "六", "日")
 

@@ -168,3 +168,20 @@ def get_jieqi_by_slug(year: int, slug: str) -> JieqiItem | None:
     if name is None:
         return None
     return next((item for item in get_jieqi_year(year) if item.name == name), None)
+
+
+def jieqi_around(year: int) -> tuple[JieqiItem, ...]:
+    items = [*get_jieqi_year(year - 1), *get_jieqi_year(year), *get_jieqi_year(year + 1)]
+    return tuple(sorted(items, key=lambda item: (item.when, item.hour, item.minute)))
+
+
+def nearest_jieqi(day: date, items: tuple[JieqiItem, ...] | None = None) -> tuple[JieqiItem, bool] | None:
+    pool = items if items is not None else jieqi_around(day.year)
+    past = [item for item in pool if item.when <= day]
+    if past != []:
+        item = past[-1]
+        return item, item.when < day
+    future = [item for item in pool if item.when > day]
+    if future != []:
+        return future[0], False
+    return None

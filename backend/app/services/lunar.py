@@ -35,7 +35,13 @@ def _festival(lunar: Lunar) -> str | None:
     return None
 
 
-def get_day_info(year: int, month: int, day: int) -> dict[str, str | None]:
+def _cn_list(values: object) -> list[str]:
+    if values is None:
+        return []
+    return [str(item) for item in values if str(item).strip() != ""]
+
+
+def get_day_info(year: int, month: int, day: int) -> dict:
     solar = Solar.fromYmd(year, month, day)
     lunar = solar.getLunar()
 
@@ -49,10 +55,20 @@ def get_day_info(year: int, month: int, day: int) -> dict[str, str | None]:
 
     jie_qi = lunar.getJieQi()
     solar_term = jie_qi if jie_qi else None
+    week_cn = solar.getWeekInChinese()
+    weekday = week_cn if week_cn.startswith("星期") else f"星期{week_cn}"
 
     return {
         "lunarText": lunar_text,
         "lunarYearMonth": f"{lunar.getYearInGanZhi()}年{month_cn}月",
+        "lunarMonthDay": f"{month_cn}月{day_cn}",
+        "ganZhi": (
+            f"{lunar.getYearInGanZhi()}年 {lunar.getMonthInGanZhi()}月 "
+            f"{lunar.getDayInGanZhi()}日"
+        ),
+        "weekday": weekday,
         "festival": _festival(lunar),
         "solarTerm": solar_term,
+        "yi": _cn_list(lunar.getDayYi()),
+        "ji": _cn_list(lunar.getDayJi()),
     }

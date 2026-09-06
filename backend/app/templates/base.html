@@ -8,14 +8,6 @@
     <link rel="canonical" href="{{ canonical }}" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <style>
-      @media (max-width: 840px) {
-        .nav-holiday,
-        .nav-jieqi { font-size: 0; line-height: 0; }
-        .nav-holiday::after { content: "放假"; font-size: 14px; line-height: 1.4; }
-        .nav-jieqi::after { content: "节气"; font-size: 14px; line-height: 1.4; }
-      }
-    </style>
     <link rel="stylesheet" href="{{ seo_css_href }}" />
     <meta name="theme-color" content="#c47878" />
     <meta property="og:type" content="website" />
@@ -43,8 +35,8 @@
       })()
     </script>
   </head>
-  <body>
-    <div class="page">
+  <body{% if nav_active == "year" %} class="is-year"{% endif %}>
+    <div class="page{% if nav_active == "year" %} page--year{% endif %}">
       <header class="site-header">
         <div class="site-header__row">
           <a class="site-brand" href="/">
@@ -74,6 +66,12 @@
           沪公网安备31011302009659号
         </a>
       </footer>
+      <nav class="tabbar" aria-label="主导航">
+        <a href="{{ nav_home }}"{% if nav_active == "month" %} class="is-active"{% endif %}>月历</a>
+        <a href="{{ nav_year }}"{% if nav_active == "year" %} class="is-active"{% endif %}>年历</a>
+        <a class="nav-holiday{% if nav_active == "fangjia" %} is-active{% endif %}" href="{{ nav_fangjia }}">放假安排</a>
+        <a class="nav-jieqi{% if nav_active == "jieqi" %} is-active{% endif %}" href="{{ nav_jieqi }}">二十四节气</a>
+      </nav>
     </div>
   </body>
 </html>

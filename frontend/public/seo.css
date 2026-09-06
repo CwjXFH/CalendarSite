@@ -153,26 +153,13 @@ body {
   font-weight: 650;
 }
 
-@media (max-width: 840px) {
-  .nav-holiday,
-  .nav-jieqi {
-    font-size: 0;
-    line-height: 0;
-  }
+.tabbar {
+  display: none;
+}
 
-  .nav-holiday::after,
-  .nav-jieqi::after {
-    font-size: 14px;
-    line-height: 1.4;
-  }
-
-  .nav-holiday::after {
-    content: "放假";
-  }
-
-  .nav-jieqi::after {
-    content: "节气";
-  }
+.tabbar .nav-holiday.is-active,
+.tabbar .nav-jieqi.is-active {
+  color: var(--pink-deep);
 }
 
 .page-main {
@@ -202,6 +189,33 @@ body {
   color: #666;
 }
 
+.page__lede--center {
+  text-align: center;
+}
+
+body.is-year {
+  background-color: #fcf8ef;
+  background-image:
+    radial-gradient(ellipse at 14% 108%, rgba(70, 68, 62, 0.07) 0%, transparent 38%),
+    radial-gradient(ellipse at 86% 110%, rgba(50, 54, 50, 0.06) 0%, transparent 36%),
+    radial-gradient(ellipse at 50% 0%, #fff8ef 0%, transparent 46%);
+}
+
+body.is-year::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 140px;
+  pointer-events: none;
+  opacity: 0.16;
+  background:
+    radial-gradient(ellipse at 20% 120%, #6d6a62 0%, transparent 46%),
+    radial-gradient(ellipse at 55% 130%, #8a8680 0%, transparent 42%),
+    radial-gradient(ellipse at 82% 120%, #5c5a54 0%, transparent 40%);
+}
+
 .page__lede a,
 .topic-links a,
 .table-card a {
@@ -216,20 +230,74 @@ body {
   font-size: 13px;
 }
 
-.topic-links--year {
+.topic-capsules {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 10px 22px;
-  margin: 0 0 22px;
-  font-size: 15px;
+  gap: 12px;
+  margin: 0 0 14px;
 }
 
-.topic-links--year a {
+.capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 132px;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--pink-deep);
+  color: var(--pink-deep);
   text-decoration: none;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 650;
+  background: #fff;
 }
 
-.topic-links--year a::after {
-  content: " ›";
+.capsule--jieqi {
+  border-color: #9bb89a;
+  color: var(--term);
+}
+
+.ico {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.ico--leaf {
+  border: 1.5px solid currentColor;
+  border-radius: 0 70% 40% 70%;
+  transform: rotate(-35deg);
+}
+
+.ico--leaf::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 1.5px;
+  height: 10px;
+  background: currentColor;
+  transform: rotate(35deg);
+}
+
+.ico--cal {
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  margin-top: 2px;
+}
+
+.ico--cal::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 3px;
+  height: 1.5px;
+  background: currentColor;
 }
 
 .page__footer {
@@ -398,6 +466,10 @@ body {
   gap: 16px;
 }
 
+.cals--year {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .table-card {
   width: 100%;
   border-collapse: collapse;
@@ -506,13 +578,45 @@ body {
   }
 
   .site-nav {
-    justify-content: space-between;
-    gap: 6px 10px;
-    font-size: 14px;
+    display: none;
   }
 
-  .cals {
+  .cals,
+  .cals--year {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .tabbar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    background: #fffdf9;
+    border-top: 1px solid var(--grid-line);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .tabbar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    color: #5c5550;
+    text-decoration: none;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .tabbar a.is-active {
+    color: var(--pink-deep);
+    font-weight: 650;
+  }
+
+  .page {
+    padding-bottom: 72px;
   }
 
   .page__heading--year {
