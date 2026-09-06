@@ -1,3 +1,4 @@
+from pathlib import Path
 from xml.etree import ElementTree
 
 from fastapi.testclient import TestClient
@@ -80,9 +81,14 @@ def test_gift_svg_is_image() -> None:
     assert "image/svg+xml" in response.headers["content-type"]
     body = response.content.decode("utf-8")
     assert "<svg" in body
-    assert "#D75A5A" in body
-    assert "#F6E5B5" in body
+    assert "#D85D59" in body
+    assert "#FBE6A2" in body
+    assert "evenodd" in body
     assert "PlusOutlined" not in body
+    root = Path(__file__).resolve().parents[2]
+    frontend = (root / "frontend" / "public" / "gift.svg").read_text(encoding="utf-8")
+    backend = (root / "backend" / "app" / "static" / "gift.svg").read_text(encoding="utf-8")
+    assert frontend == backend == body
 
 
 def test_month_page_september_2026() -> None:
