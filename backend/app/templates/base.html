@@ -9,7 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="stylesheet" href="/seo.css" />
-    <meta name="theme-color" content="#c43c3c" />
+    <meta name="theme-color" content="#c47878" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="{{ title }}" />
     <meta property="og:description" content="{{ description }}" />
@@ -37,14 +37,20 @@
   </head>
   <body>
     <div class="page">
-      <header class="page__header">
-        <div class="page__brand">
-          <a class="page__title" href="/">万年历</a>
-        </div>
-        <nav class="page__seo-nav" aria-label="专题">
-          <a href="{{ nav_year }}">{{ year }}年历</a>
-          <a href="{{ nav_fangjia }}">放假安排</a>
-          <a href="{{ nav_jieqi }}">二十四节气</a>
+      <header class="site-header">
+        <a class="site-brand" href="/">
+          <span class="site-logo" aria-hidden="true"></span>
+          <span class="site-name">万年历</span>
+        </a>
+        <form class="site-search" action="/" method="get" role="search">
+          <span class="site-search__icon" aria-hidden="true"></span>
+          <input type="search" name="q" placeholder="搜索日期 / 节日 / 节气" aria-label="搜索日期、节日或节气" />
+        </form>
+        <nav class="site-nav" aria-label="站点">
+          <a href="{{ nav_home }}"{% if nav_active == "month" %} class="is-active"{% endif %}>月历</a>
+          <a href="{{ nav_year }}"{% if nav_active == "year" %} class="is-active"{% endif %}>年历</a>
+          <a href="{{ nav_fangjia }}"{% if nav_active == "fangjia" %} class="is-active"{% endif %}><span class="nav-full">放假安排</span><span class="nav-short">放假</span></a>
+          <a href="{{ nav_jieqi }}"{% if nav_active == "jieqi" %} class="is-active"{% endif %}><span class="nav-full">二十四节气</span><span class="nav-short">节气</span></a>
         </nav>
       </header>
       <main>

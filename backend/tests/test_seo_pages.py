@@ -30,7 +30,9 @@ def test_year_page() -> None:
     assert response.status_code == 200
     text = response.text
     assert "2026年公历农历日历" in text
-    assert "/y/2026/m/9" in text
+    assert "/?y=2026&amp;m=9" in text
+    assert "月历" in text
+    assert "常见问题" in text
     assert "FAQPage" in text
     assert "BreadcrumbList" in text
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
@@ -60,7 +62,12 @@ def test_fangjia_2026() -> None:
     assert "班" in text
     assert 'href="/"' in text
     assert "FAQPage" in text
-    assert 'href="/fangjia/2026.ics"' in text
+    assert "月历" in text
+    assert "常见问题" in text
+    assert 'href="/fangjia/2026.ics"' not in text
+    assert "下载 ICS" not in text
+    assert "添加到手机日历" not in text
+    assert ".ics" not in text
 
 
 def test_jieqi_2026_table_and_term() -> None:
@@ -70,6 +77,8 @@ def test_jieqi_2026_table_and_term() -> None:
     assert "立春" in text
     assert "冬至" in text
     assert "FAQPage" in text
+    assert "<details" in text
+    assert "月历" in text
     assert "/jieqi/2026/lichun" in text
     desc = _attr(text, 'name="description" content="')
     og = _attr(text, 'property="og:description" content="')

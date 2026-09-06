@@ -26,6 +26,19 @@ class MetaResponse(BaseModel):
     maxYear: int
 
 
+class HolidayPeriodOut(BaseModel):
+    name: str
+    start: str
+    end: str
+    days: int
+    makeup: list[str]
+
+
+class HolidaysResponse(BaseModel):
+    year: int
+    periods: list[HolidayPeriodOut]
+
+
 class ErrorResponse(BaseModel):
     code: str
     message: str

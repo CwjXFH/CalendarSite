@@ -9,7 +9,7 @@ export default function App() {
       locale={zhCN}
       theme={{
         token: {
-          colorPrimary: '#c43c3c',
+          colorPrimary: '#c47878',
           borderRadius: 6,
           fontFamily:
             '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',

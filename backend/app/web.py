@@ -48,6 +48,7 @@ def _month_view(year: int, month: int) -> dict:
         "lunarYearMonth": cal.lunarYearMonth,
         "weeks": [days[i : i + 7] for i in range(0, 42, 7)],
         "href": f"/y/{year}/m/{month}",
+        "home_href": f"/?y={year}&m={month}",
     }
 
 
@@ -139,9 +140,11 @@ def _page(
         "faqs": faqs,
         "faq_json": _faq_json(faqs) if faqs else "",
         "breadcrumb_json": _breadcrumb_json(breadcrumbs) if breadcrumbs else "",
+        "nav_home": "/",
         "nav_fangjia": f"/fangjia/{year}",
         "nav_jieqi": f"/jieqi/{year}",
         "nav_year": f"/y/{year}",
+        "nav_active": "",
     }
     if extra:
         context.update(extra)
@@ -227,8 +230,8 @@ def _fangjia_faqs(year: int, periods: list) -> list[tuple[str, str]]:
                 "以国务院办公厅当年通知为准。本站按已公布安排标注法定假日与调休，不编造未公布年份。",
             ),
             (
-                f"如何把{year}年放假安排导入日历？",
-                f"下载 {SITE_URL}/fangjia/{year}.ics 导入系统日历，含法定假日与调休补班。",
+                f"{year}年放假安排怎样对照月历？",
+                f"本页表格列出各假期区间与调休；下方月历用颜色标出法定假日与调休上班日。也可打开{year}年年历。",
             ),
             (
                 "法定节假日和周末有何不同？",
@@ -376,7 +379,7 @@ async def year_page(request: Request, year: int) -> HTMLResponse:
         year=year,
         faqs=faqs,
         breadcrumbs=[("万年历", "/"), (f"{year}年公历农历日历", f"/y/{year}")],
-        extra={"months": months, "periods": periods, "terms": terms},
+        extra={"months": months, "periods": periods, "terms": terms, "nav_active": "year"},
     )
 
 
@@ -452,6 +455,7 @@ async def month_page(request: Request, year: int, month: int) -> HTMLResponse:
             "prev_href": prev_href,
             "next_href": next_href,
             "month_terms": month_terms,
+            "nav_active": "month",
         },
     )
 
@@ -477,7 +481,7 @@ async def jieqi_year_page(request: Request, year: int) -> HTMLResponse:
         year=year,
         faqs=faqs,
         breadcrumbs=[("万年历", "/"), (f"{year}年二十四节气时间表", f"/jieqi/{year}")],
-        extra={"terms": terms, "lead": lead, "slugs": JIEQI_SLUG},
+        extra={"terms": terms, "lead": lead, "slugs": JIEQI_SLUG, "nav_active": "jieqi"},
     )
 
 
@@ -515,6 +519,7 @@ async def jieqi_term_page(request: Request, year: int, slug: str) -> HTMLRespons
             "prev_item": prev_item,
             "next_item": next_item,
             "cal": _month_view(item.when.year, item.when.month),
+            "nav_active": "jieqi",
         },
     )
 
@@ -599,7 +604,7 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
             "lead": lead,
             "periods": periods,
             "months": months,
-            "ics_href": f"/fangjia/{year}.ics" if periods else None,
+            "nav_active": "fangjia",
         },
     )
 

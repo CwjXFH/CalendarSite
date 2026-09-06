@@ -2,14 +2,14 @@
 {% from "macros.html" import month_cal, faq_section %}
 {% block content %}
 <p class="page__lede">
-  {% if periods %}<a href="/fangjia/{{ year }}">{{ year }}年放假安排</a> · {% endif %}
-  <a href="/jieqi/{{ year }}">二十四节气</a>
+  <a href="/fangjia/{{ year }}">放假安排</a>
+  · <a href="/jieqi/{{ year }}">二十四节气</a>
   {% if year > min_year %} · <a href="/y/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
   {% if year < max_year %} · <a href="/y/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
 </p>
 <section class="cals">
   {% for cal in months %}
-  {{ month_cal(cal, weekdays, compact=true) }}
+  {{ month_cal(cal, weekdays, compact=true, href=cal.home_href) }}
   {% endfor %}
 </section>
 {{ faq_section(faqs) }}

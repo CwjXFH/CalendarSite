@@ -1,7 +1,11 @@
-{% macro month_cal(cal, weekdays, today=None, compact=false) %}
+{% macro month_cal(cal, weekdays, today=None, compact=false, href=None) %}
+{% set link = href if href is not none else cal.href %}
+{% if compact %}
+<a class="cal-card" href="{{ link }}">
+{% endif %}
 <div class="calendar{% if compact %} calendar--mini{% endif %}">
   {% if compact %}
-  <div class="calendar__caption"><a href="{{ cal.href }}">{{ cal.year }}年{{ cal.month }}月</a></div>
+  <div class="calendar__caption">{{ cal.year }}年{{ cal.month }}月</div>
   {% endif %}
   <div class="calendar__weekdays">
     {% for w in weekdays %}
@@ -11,7 +15,7 @@
   <div class="calendar__grid">
     {% for week in cal.weeks %}
       {% for cell in week %}
-      <div class="day-cell{% if cell.isCurrentMonth == false %} day-cell--muted{% endif %}{% if cell.isLegalHoliday %} day-cell--holiday{% elif cell.isWeekend and cell.isMakeupWorkday == false %} day-cell--weekend{% endif %}{% if today and cell.date == today %} day-cell--today{% endif %}">
+      <div class="day-cell{% if cell.isCurrentMonth == false %} day-cell--muted{% endif %}{% if cell.isLegalHoliday %} day-cell--holiday{% elif cell.isMakeupWorkday %} day-cell--work{% elif cell.isWeekend %} day-cell--weekend{% endif %}{% if today and cell.date == today %} day-cell--today{% endif %}{% if cell.solarTerm %} day-cell--term{% endif %}">
         <span class="day-cell__solar">{{ cell.day }}</span>
         {% if compact == false %}
         <span class="day-cell__lunar">{{ cell.festival or cell.solarTerm or cell.lunarText }}</span>
@@ -24,16 +28,19 @@
     {% endfor %}
   </div>
 </div>
+{% if compact %}
+</a>
+{% endif %}
 {% endmacro %}
 
 {% macro faq_section(faqs) %}
 <section class="faq" id="faq">
   <h2>常见问题</h2>
   {% for q, a in faqs %}
-  <article>
-    <h3>{{ q }}</h3>
+  <details class="faq__item"{% if loop.first %} open{% endif %}>
+    <summary>{{ q }}</summary>
     <p>{{ a }}</p>
-  </article>
+  </details>
   {% endfor %}
 </section>
 {% endmacro %}

@@ -23,7 +23,34 @@ export interface MetaResponse {
   maxYear: number
 }
 
+export interface HolidayPeriod {
+  name: string
+  start: string
+  end: string
+  days: number
+  makeup: string[]
+}
+
+export interface HolidaysResponse {
+  year: number
+  periods: HolidayPeriod[]
+}
+
 export interface ApiError {
   code: string
   message: string
+}
+
+export interface HomeQuery {
+  y: number | null
+  m: number | null
+  d: number | null
+  date: string | null
+  q: string
+}
+
+export interface Ymd {
+  y: number
+  m: number
+  d: number
 }

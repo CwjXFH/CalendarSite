@@ -3,19 +3,18 @@
 {% block content %}
 <p class="page__lede">{{ lead }}
   <a href="/">返回首页</a>
-  {% if ics_href %} · <a href="{{ ics_href }}">下载 ICS</a>{% endif %}
   {% if year > min_year %} · <a href="/fangjia/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
   {% if year < max_year %} · <a href="/fangjia/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
 </p>
 {% if periods %}
-<table class="table-card">
+<table class="table-card table-card--fangjia">
   <caption>{{ year }}年放假与调休</caption>
   <thead>
     <tr>
       <th scope="col">假期</th>
       <th scope="col">放假时间</th>
       <th scope="col">天数</th>
-      <th scope="col">调休上班</th>
+      <th scope="col" class="col-makeup">调休上班</th>
     </tr>
   </thead>
   <tbody>
@@ -24,13 +23,24 @@
       <td>{{ p.name }}</td>
       <td>{{ p.start.month }}月{{ p.start.day }}日{% if p.start != p.end %}–{{ p.end.month }}月{{ p.end.day }}日{% endif %}</td>
       <td>{{ p.days }}天</td>
-      <td>{% if p.makeup %}{% for d in p.makeup %}{{ d.month }}月{{ d.day }}日{% if not loop.last %}、{% endif %}{% endfor %}{% else %}无{% endif %}</td>
+      <td class="col-makeup">{% if p.makeup %}{% for d in p.makeup %}{{ d.month }}月{{ d.day }}日{% if not loop.last %}、{% endif %}{% endfor %}{% else %}无{% endif %}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+<section class="makeup-panel" aria-label="调休说明">
+  <h2>调休说明</h2>
+  {% for p in periods %}
+    {% if p.makeup %}
+    <details class="faq__item"{% if loop.first %} open{% endif %}>
+      <summary>{{ p.name }}调休</summary>
+      <p>{% for d in p.makeup %}{{ d.month }}月{{ d.day }}日{% if not loop.last %}、{% endif %}{% endfor %}上班。</p>
+    </details>
+    {% endif %}
+  {% endfor %}
+</section>
 {% endif %}
-<h2 class="page__heading page__heading--space">{{ year }}年月历</h2>
+<h2 class="page__heading page__heading--space">{{ year }}年月历（节日一览）</h2>
 <p class="page__lede">深红为法定节假日，浅红为周末，「班」为调休上班。</p>
 <section class="cals">
   {% for cal in months %}
