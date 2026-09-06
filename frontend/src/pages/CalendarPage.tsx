@@ -106,6 +106,11 @@ export default function CalendarPage() {
           {headerLunar ? (
             <span className="page__lunar">{headerLunar}</span>
           ) : null}
+          <nav className="page__seo-nav" aria-label="专题">
+            <a href={`/y/${year}`}>年历</a>
+            <a href={`/fangjia/${year}`}>放假安排</a>
+            <a href={`/jieqi/${year}`}>二十四节气</a>
+          </nav>
         </div>
         <Space wrap className="page__controls">
           <Select

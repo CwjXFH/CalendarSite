@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ description }}" />
+    <link rel="canonical" href="{{ canonical }}" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#c43c3c" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ title }}" />
+    <meta property="og:description" content="{{ description }}" />
+    <meta property="og:url" content="{{ canonical }}" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="{{ site_name }}" />
+    <style>
+      :root {
+        --bg: #f7f4ef;
+        --bg-accent: #efe8de;
+        --text: #222;
+        --muted: #8a8a8a;
+        --weekend-bg: #ffe5e5;
+        --holiday-bg: #ffc9c9;
+        --grid: #e8e2d8;
+        --link: #8b1e1e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, #fff8ef 0%, transparent 45%),
+          linear-gradient(180deg, var(--bg) 0%, var(--bg-accent) 100%);
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        line-height: 1.55;
+      }
+      a { color: var(--link); }
+      .wrap { max-width: 960px; margin: 0 auto; padding: 20px 16px 32px; }
+      .top {
+        display: flex; flex-wrap: wrap; align-items: center;
+        justify-content: space-between; gap: 10px; margin-bottom: 16px;
+      }
+      .brand { font-size: 22px; font-weight: 600; color: var(--text); text-decoration: none; }
+      nav { display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; }
+      h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; }
+      h2 { font-size: 20px; margin: 28px 0 10px; }
+      h3 { font-size: 16px; margin: 16px 0 6px; }
+      .lead { font-size: 18px; margin: 0 0 16px; }
+      .muted { color: var(--muted); }
+      .jump { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 16px; }
+      .jump select, .jump button { font: inherit; padding: 4px 8px; }
+      table.cal {
+        width: 100%; border-collapse: collapse; background: rgba(255,255,255,.72);
+        border: 1px solid var(--grid); border-radius: 12px; overflow: hidden;
+      }
+      table.cal caption { text-align: left; font-weight: 600; padding: 8px 4px; }
+      table.cal th, table.cal td {
+        border: 1px solid var(--grid); width: 14.28%; vertical-align: top;
+        padding: 6px; font-size: 13px;
+      }
+      table.cal th { background: rgba(255,255,255,.5); text-align: center; font-weight: 500; }
+      table.cal .solar { font-size: 16px; font-weight: 600; display: block; }
+      table.cal .lunar { color: #666; font-size: 12px; }
+      table.cal .weekend { background: var(--weekend-bg); }
+      table.cal .holiday { background: var(--holiday-bg); }
+      table.cal .muted-day { opacity: .42; }
+      table.cal .today { box-shadow: inset 0 0 0 2px #d9363e; }
+      table.cal .ban { color: #8b1e1e; font-weight: 600; }
+      .cals { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+      table.cal--mini th, table.cal--mini td { padding: 3px; font-size: 11px; }
+      table.cal--mini .solar { font-size: 13px; }
+      table.data { width: 100%; border-collapse: collapse; background: rgba(255,255,255,.8); }
+      table.data th, table.data td { border: 1px solid var(--grid); padding: 8px 10px; text-align: left; }
+      table.data th { background: #f3ece3; }
+      .faq article { margin-bottom: 8px; }
+      .links { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+      footer {
+        margin-top: 32px; padding-top: 16px; display: flex; flex-direction: column;
+        align-items: center; gap: 6px; font-size: 12px; color: #1b4f9a;
+      }
+      footer a { color: inherit; text-decoration: none; }
+      footer a:hover { text-decoration: underline; }
+      .mps { display: inline-flex; align-items: center; gap: 4px; }
+      .mps img { width: 16px; height: 16px; }
+      @media (max-width: 640px) {
+        h1 { font-size: 22px; }
+        table.cal .solar { font-size: 14px; }
+        .cals { grid-template-columns: 1fr 1fr; }
+      }
+    </style>
+    {% if faq_json %}
+    <script type="application/ld+json">{{ faq_json | safe }}</script>
+    {% endif %}
+    <script>
+      var _hmt = _hmt || []
+      ;(function () {
+        if (location.hostname !== "wannianli.site") {
+          return
+        }
+        var hm = document.createElement("script")
+        hm.src = "https://hm.baidu.com/hm.js?4ea5f209caf0c09f95e27224e4222ea3"
+        var s = document.getElementsByTagName("script")[0]
+        s.parentNode.insertBefore(hm, s)
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.register("/sw.js")
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="/">{{ site_name }}</a>
+        <nav>
+          <a href="{{ nav_year }}">{{ year }}年历</a>
+          <a href="{{ nav_fangjia }}">放假安排</a>
+          <a href="{{ nav_jieqi }}">二十四节气</a>
+          <a href="/app">交互日历</a>
+        </nav>
+      </header>
+      <main>
+        <h1>{{ heading }}</h1>
+        {% block content %}{% endblock %}
+      </main>
+      <footer>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">沪ICP备2026041562号-1</a>
+        <a class="mps" href="https://beian.mps.gov.cn/#/query/webSearch?code=31011302009659" target="_blank" rel="noreferrer">
+          <img src="/备案图标.png" alt="" />
+          沪公网安备31011302009659号
+        </a>
+      </footer>
+    </div>
+  </body>
+</html>

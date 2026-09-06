@@ -48,6 +48,7 @@ body {
 
 .page__brand {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 10px;
   min-width: 0;
@@ -64,6 +65,17 @@ body {
   font-weight: 400;
   color: #8a8a8a;
   white-space: nowrap;
+}
+
+.page__seo-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.page__seo-nav a {
+  color: #8b1e1e;
 }
 
 .page__controls {

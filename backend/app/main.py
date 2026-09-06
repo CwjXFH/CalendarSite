@@ -4,13 +4,14 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1 import limiter
 from app.api.v1 import router as v1_router
 from app.db.seed import seed_holidays
+from app.web import router as web_router
 
 
 @asynccontextmanager
@@ -35,12 +36,25 @@ app.add_middleware(
 )
 
 app.include_router(v1_router)
+app.include_router(web_router)
+
+
+def _html_error(status_code: int, message: str) -> HTMLResponse:
+    body = (
+        "<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'>"
+        f"<title>{message}</title></head><body>"
+        f"<p>{message}</p><p><a href='/'>返回首页</a></p></body></html>"
+    )
+    return HTMLResponse(status_code=status_code, content=body)
 
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(
     request: Request, exc: StarletteHTTPException
-) -> JSONResponse:
+) -> JSONResponse | HTMLResponse:
+    if request.url.path.startswith("/api/") is False:
+        message = "页面不存在" if exc.status_code == 404 else str(exc.detail)
+        return _html_error(exc.status_code, message)
     if isinstance(exc.detail, dict) and "code" in exc.detail:
         return JSONResponse(status_code=exc.status_code, content=exc.detail)
     return JSONResponse(

@@ -1,0 +1,19 @@
+{
+  "name": "万年历",
+  "short_name": "万年历",
+  "description": "公历农历对照，法定节假日、调休与二十四节气",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#c43c3c",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
