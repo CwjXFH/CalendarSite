@@ -10,7 +10,9 @@ import {
   formatMakeup,
   formatRange,
   formatTermLine,
+  isoDate,
   lunarParts,
+  monthLandingDate,
   nextHolidayBar,
   parseDateQuery,
   parseHomeQuery,
@@ -38,11 +40,9 @@ function applyYmd(
   if (ymd.y < minYear || ymd.y > maxYear || ymd.m < 1 || ymd.m > 12) {
     return
   }
-  const last = new Date(ymd.y, ymd.m, 0).getDate()
-  const day = Math.min(Math.max(ymd.d, 1), last)
   setYear(ymd.y)
   setMonth(ymd.m)
-  setSelected(`${ymd.y}-${String(ymd.m).padStart(2, '0')}-${String(day).padStart(2, '0')}`)
+  setSelected(isoDate(ymd.y, ymd.m, ymd.d))
 }
 
 export default function CalendarPage() {
@@ -65,8 +65,8 @@ export default function CalendarPage() {
     if (boot.y && boot.m && boot.d) {
       return `${boot.y}-${String(boot.m).padStart(2, '0')}-${String(boot.d).padStart(2, '0')}`
     }
-    if (boot.y && boot.m && (boot.y !== now.getFullYear() || boot.m !== now.getMonth() + 1)) {
-      return `${boot.y}-${String(boot.m).padStart(2, '0')}-01`
+    if (boot.y && boot.m) {
+      return monthLandingDate(boot.y, boot.m, now)
     }
     return todayStr(now)
   })
@@ -171,10 +171,7 @@ export default function CalendarPage() {
       if (sy === year && sm === month) {
         return current
       }
-      if (year === now.getFullYear() && month === now.getMonth() + 1) {
-        return todayStr(now)
-      }
-      return `${year}-${String(month).padStart(2, '0')}-01`
+      return monthLandingDate(year, month, now, current)
     })
   }, [year, month, now])
 

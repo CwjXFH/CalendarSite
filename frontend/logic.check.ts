@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   clippedList,
   daysBetween,
   formatTermLine,
+  isoDate,
   lunarParts,
+  monthLandingDate,
   nextHolidayBar,
   parseDateQuery,
   parseHomeQuery,
@@ -73,6 +76,28 @@ assert.equal(
 assert.equal(
   formatTermLine({ name: '秋分', date: '2026-09-23', time: '08:05', passed: false }, '2026-09-23'),
   '秋分（当日） 9月23日 08:05',
+)
+
+assert.equal(isoDate(2026, 2, 31), '2026-02-28')
+assert.equal(monthLandingDate(2026, 9, today), '2026-09-06')
+assert.equal(monthLandingDate(2026, 4, today), '2026-04-06')
+assert.notEqual(monthLandingDate(2026, 4, today), '2026-04-01')
+assert.equal(monthLandingDate(2026, 10, today, '2026-09-24'), '2026-10-24')
+assert.equal(monthLandingDate(2026, 2, today, '2026-01-31'), '2026-02-28')
+
+const css = readFileSync(new URL('./src/App.css', import.meta.url), 'utf8')
+function cssToken(name: string): string {
+  const match = css.match(new RegExp(`${name}:\\s*(#[0-9a-fA-F]{6})`))
+  assert.ok(match, name)
+  return match[1]
+}
+assert.notEqual(cssToken('--today-fill'), cssToken('--work-bg'))
+assert.match(css, /\.day-cell--today \{[\s\S]*?background: var\(--today-fill\)/)
+assert.doesNotMatch(css, /\.day-cell--holiday \{[^}]*border-radius/)
+assert.doesNotMatch(css, /\.day-cell--work \{[^}]*border-radius/)
+assert.doesNotMatch(
+  css,
+  /\.day-cell--today:not\(\.day-cell--selected\) \.day-cell__solar \{[^}]*background: var\(--today-fill\)/,
 )
 
 console.log('logic.check ok')
