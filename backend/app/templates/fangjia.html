@@ -1,17 +1,14 @@
 {% extends "base.html" %}
 {% from "macros.html" import month_cal, faq_section %}
 {% block content %}
-<p class="lead">{{ lead }}</p>
-<p class="links">
+<p class="page__lede">{{ lead }}
   <a href="/">返回首页</a>
-  <a href="/y/{{ year }}">{{ year }}年历</a>
-  <a href="/jieqi/{{ year }}">二十四节气</a>
-  {% if ics_href %}<a href="{{ ics_href }}">下载 {{ year }}年放假日历（ICS）</a>{% endif %}
-  {% if year > min_year %}<a href="/fangjia/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
-  {% if year < max_year %}<a href="/fangjia/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
+  {% if ics_href %} · <a href="{{ ics_href }}">下载 ICS</a>{% endif %}
+  {% if year > min_year %} · <a href="/fangjia/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
+  {% if year < max_year %} · <a href="/fangjia/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
 </p>
 {% if periods %}
-<table class="data">
+<table class="table-card">
   <caption>{{ year }}年放假与调休</caption>
   <thead>
     <tr>
@@ -33,8 +30,8 @@
   </tbody>
 </table>
 {% endif %}
-<h2>{{ year }}年月历（放假 / 调休）</h2>
-<p>深红为法定节假日，浅红为周末，格子内「班」为调休上班日。</p>
+<h2 class="page__heading page__heading--space">{{ year }}年月历</h2>
+<p class="page__lede">深红为法定节假日，浅红为周末，「班」为调休上班。</p>
 <section class="cals">
   {% for cal in months %}
   {{ month_cal(cal, weekdays, compact=true) }}

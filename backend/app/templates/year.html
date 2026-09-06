@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% from "macros.html" import month_cal, faq_section %}
 {% block content %}
-<p class="lead">{{ year }}年公历农历对照。点击月份查看该月日历{% if periods %}；已公布放假安排见<a href="/fangjia/{{ year }}">{{ year }}年放假安排</a>{% endif %}。</p>
-<p class="links">
-  <a href="/jieqi/{{ year }}">{{ year }}年二十四节气</a>
-  {% if year > min_year %}<a href="/y/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
-  {% if year < max_year %}<a href="/y/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
+<p class="page__lede">
+  {% if periods %}<a href="/fangjia/{{ year }}">{{ year }}年放假安排</a> · {% endif %}
+  <a href="/jieqi/{{ year }}">二十四节气</a>
+  {% if year > min_year %} · <a href="/y/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
+  {% if year < max_year %} · <a href="/y/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
 </p>
 <section class="cals">
   {% for cal in months %}

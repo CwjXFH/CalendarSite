@@ -9,7 +9,7 @@ GET {{base_url}}/meta
 ### Calendar
 GET {{base_url}}/calendar?year=1940&month=10
 
-### HTML landing
+### Home is SPA; topic pages are HTML
 GET https://wannianli.site/
 GET https://wannianli.site/y/2026
 GET https://wannianli.site/fangjia/2026

@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 {% from "macros.html" import faq_section %}
 {% block content %}
-<p class="lead">{{ lead }}</p>
-<p class="links">
+<p class="page__lede">{{ lead }}
   <a href="/">返回首页</a>
-  <a href="/y/{{ year }}">{{ year }}年历</a>
-  <a href="/fangjia/{{ year }}">放假安排</a>
-  {% if year > min_year %}<a href="/jieqi/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
-  {% if year < max_year %}<a href="/jieqi/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
+  {% if year > min_year %} · <a href="/jieqi/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
+  {% if year < max_year %} · <a href="/jieqi/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
 </p>
-<table class="data">
+<table class="table-card">
   <caption>{{ year }}年二十四节气交节时间（北京时间）</caption>
   <thead>
     <tr>

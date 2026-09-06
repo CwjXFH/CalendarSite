@@ -37,12 +37,12 @@
 
 ```text
 浏览器 → Nginx（静态 + 限流 + 反代）
-           ├─ / /y/ /jieqi/ /fangjia/ /sitemap.xml → FastAPI HTML（无 JS 可抓取）
-           ├─ /app 及静态资源 → Vite SPA（交互日历）
-           └─ /api/v1 → FastAPI JSON
+           ├─ /              → Vite SPA（交互万年历，Ant Design）
+           ├─ /y/ /jieqi/ /fangjia/ /sitemap.xml → FastAPI HTML（专题 SEO）
+           └─ /api/v1        → FastAPI JSON
 ```
 
-落地页由 FastAPI + Jinja2 直接输出 HTML，复用月历 / 放假 / 节气计算，不重写 Next.js。`manifest.json` / `sw.js` 走静态文件，禁止 SPA `try_files` 回落到 `index.html`。
+`/` 是原来的交互日历，不要用 Jinja 首页替换。专题页由 FastAPI + Jinja2 输出可抓取 HTML。首页 SEO 靠 `index.html` 的 meta / FAQ JSON-LD / noscript。`manifest.json` / `sw.js` 走静态文件，禁止 SPA `try_files` 回落到 `index.html`。
 
 ## 稳定 API（v1）
 

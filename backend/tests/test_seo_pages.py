@@ -7,19 +7,9 @@ from app.services.jieqi import get_jieqi_year
 client = TestClient(app)
 
 
-def test_home_html_without_js() -> None:
+def test_fastapi_root_is_not_a_jinja_home() -> None:
     response = client.get("/")
-    assert response.status_code == 200
-    assert "text/html" in response.headers["content-type"]
-    text = response.text
-    assert "<html" in text
-    assert "万年历" in text
-    assert "FAQPage" in text
-    assert "放假" in text
-    assert "节气" in text
-    assert ">一</th>" in text
-    assert "application/ld+json" in text
-    assert 'rel="canonical"' in text
+    assert response.status_code == 404
 
 
 def test_year_page() -> None:
@@ -38,6 +28,8 @@ def test_month_page_september_2026() -> None:
     assert "2026年9月" in text
     assert "中秋" in text
     assert "白露" in text or "秋分" in text
+    assert "查看" not in text
+    assert "/y/jump" not in text
 
 
 def test_fangjia_2026() -> None:
