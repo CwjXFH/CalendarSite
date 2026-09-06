@@ -11,8 +11,8 @@
   --holiday-bg: #f6d4d2;
   --work-bg: #f3ead8;
   --term: #5d8a62;
-  --today-fill: #f0e2c4;
-  --today-line: #d4b48a;
+  --today-fill: #d8eee6;
+  --today-line: #6f9d88;
   --grid-line: #efe6dc;
   --radius: 16px;
   --radius-sm: 12px;
@@ -409,6 +409,7 @@ body.is-year::after {
 .day-cell--today {
   background: var(--today-fill);
   box-shadow: inset 0 0 0 1px var(--today-line);
+  border-radius: 0;
 }
 
 .day-cell--weekend .day-cell__solar,

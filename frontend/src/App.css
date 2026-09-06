@@ -11,9 +11,9 @@
   --holiday-bg: #f6d4d2;
   --work-bg: #f3ead8;
   --term: #5d8a62;
-  --today-fill: #f0e2c4;
+  --today-fill: #d8eee6;
   --selected-fill: #ead6b0;
-  --today-line: #d4b48a;
+  --today-line: #6f9d88;
   --grid-line: #efe6dc;
   --radius: 16px;
   --radius-sm: 12px;
@@ -469,6 +469,11 @@ body {
   background: var(--work-bg);
 }
 
+.day-cell--today {
+  background: var(--today-fill);
+  box-shadow: inset 0 0 0 1px var(--today-line);
+}
+
 .day-cell--muted {
   opacity: 0.42;
 }
@@ -484,7 +489,6 @@ body {
   line-height: 1.1;
 }
 
-.day-cell--today:not(.day-cell--selected) .day-cell__solar,
 .day-cell--selected .day-cell__solar {
   min-width: 28px;
   min-height: 28px;
@@ -493,20 +497,11 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.day-cell--today:not(.day-cell--selected) .day-cell__solar {
-  background: var(--today-fill);
-  box-shadow: inset 0 0 0 1px var(--today-line);
+  background: var(--selected-fill);
 }
 
 .day-cell--selected {
-  box-shadow: none;
   z-index: 1;
-}
-
-.day-cell--selected .day-cell__solar {
-  background: var(--selected-fill);
 }
 
 .day-cell__lunar {
@@ -546,7 +541,7 @@ body {
 
 .day-card__hero {
   padding: 18px 16px;
-  background: var(--today-fill);
+  background: var(--selected-fill);
   text-align: center;
 }
 

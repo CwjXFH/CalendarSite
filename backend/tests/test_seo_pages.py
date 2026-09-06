@@ -39,7 +39,7 @@ def test_year_page() -> None:
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
     assert 'class="page-main"' in text
-    assert 'href="/seo.css?v=20260906i"' in text
+    assert 'href="/seo.css?v=20260906j"' in text
     assert 'src="/logo.svg"' in text
     assert "放假安排放假" not in text
     assert "二十四节气节气" not in text
@@ -64,6 +64,10 @@ def test_seo_css_is_served() -> None:
     assert ".day-cell--holiday {\n  background: var(--holiday-bg);\n  border-radius: 0;" in response.text
     assert ".day-cell--work {\n  background: var(--work-bg);\n  border-radius: 0;" in response.text
     assert ".day-cell--weekend {\n  background: var(--weekend-bg);\n  border-radius: 0;" in response.text
+    assert "--today-fill: #d8eee6;" in response.text
+    assert "--work-bg: #f3ead8;" in response.text
+    assert "--today-fill: #f3ead8;" not in response.text
+    assert ".day-cell--today {\n  background: var(--today-fill);" in response.text
 
 
 def test_logo_svg_is_image() -> None:
