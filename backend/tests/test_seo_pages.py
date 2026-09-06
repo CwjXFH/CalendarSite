@@ -67,6 +67,7 @@ def test_jieqi_2026_table_and_term() -> None:
     assert term.status_code == 200
     assert "交节" in term.text
     assert "2月4日" in term.text
+    assert "星期三" in term.text
     assert "04:02" in term.text
     assert "FAQPage" in term.text
 
