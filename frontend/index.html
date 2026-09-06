@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#c43c3c" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>万年历 - 公历农历对照，法定节假日与二十四节气</title>
     <meta
@@ -45,7 +47,16 @@
   </head>
   <body>
     <div id="root"></div>
-    <noscript>请启用 JavaScript 以查看万年历。</noscript>
+    <noscript>
+      交互日历需要 JavaScript。无脚本可打开
+      <a href="/">万年历首页</a>、<a href="/fangjia/2026">2026年放假安排</a>
+      或 <a href="/jieqi/2026">2026年二十四节气</a>。
+    </noscript>
+    <script>
+      if ("serviceWorker" in navigator && location.hostname === "wannianli.site") {
+        navigator.serviceWorker.register("/sw.js")
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

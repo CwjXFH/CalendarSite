@@ -37,9 +37,12 @@
 
 ```text
 浏览器 → Nginx（静态 + 限流 + 反代）
-           ├─ /        → 前端静态资源
-           └─ /api/v1  → FastAPI → SQLite / 农历算法
+           ├─ / /y/ /jieqi/ /fangjia/ /sitemap.xml → FastAPI HTML（无 JS 可抓取）
+           ├─ /app 及静态资源 → Vite SPA（交互日历）
+           └─ /api/v1 → FastAPI JSON
 ```
+
+落地页由 FastAPI + Jinja2 直接输出 HTML，复用月历 / 放假 / 节气计算，不重写 Next.js。`manifest.json` / `sw.js` 走静态文件，禁止 SPA `try_files` 回落到 `index.html`。
 
 ## 稳定 API（v1）
 

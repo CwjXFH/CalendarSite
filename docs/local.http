@@ -8,3 +8,13 @@ GET {{base_url}}/meta
 
 ### Calendar
 GET {{base_url}}/calendar?year=1940&month=10
+
+### HTML home
+GET http://localhost:9000/
+
+### Year / fangjia / jieqi
+GET http://localhost:9000/y/2026
+GET http://localhost:9000/fangjia/2026
+GET http://localhost:9000/jieqi/2026
+GET http://localhost:9000/jieqi/2026/lichun
+GET http://localhost:9000/sitemap.xml

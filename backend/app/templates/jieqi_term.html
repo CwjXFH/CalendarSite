@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import month_cal, faq_section %}
+{% block content %}
+<p class="lead">{{ lead }}</p>
+<p>{{ blurb }}</p>
+<p class="links">
+  <a href="/jieqi/{{ year }}">{{ year }}年二十四节气</a>
+  {% if prev_item %}<a href="/jieqi/{{ year }}/{{ prev_item.slug }}" rel="prev">上一节气 {{ prev_item.name }}</a>{% endif %}
+  {% if next_item %}<a href="/jieqi/{{ year }}/{{ next_item.slug }}" rel="next">下一节气 {{ next_item.name }}</a>{% endif %}
+  <a href="/y/{{ item.when.year }}/m/{{ item.when.month }}">{{ item.when.month }}月日历</a>
+  <a href="/">返回首页</a>
+</p>
+<table class="data">
+  <caption>{{ year }}年{{ item.name }}交节</caption>
+  <tbody>
+    <tr><th scope="row">交节时间</th><td>{{ item.datetime_text }}（北京时间）</td></tr>
+    <tr><th scope="row">公历</th><td>{{ item.when.year }}年{{ item.when.month }}月{{ item.when.day }}日</td></tr>
+    <tr><th scope="row">农历</th><td>{{ item.lunar_year_month }}{{ item.lunar_text }}</td></tr>
+    <tr><th scope="row">星期</th><td>{{ item.weekday }}</td></tr>
+  </tbody>
+</table>
+<h2>{{ item.when.year }}年{{ item.when.month }}月日历</h2>
+{{ month_cal(cal, weekdays, today=item.when.isoformat()) }}
+{{ faq_section(faqs) }}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "macros.html" import month_cal, faq_section, jump_form %}
+{% block content %}
+<p class="lead">{{ cal.year }}年{{ cal.month }}月公历农历对照（{{ cal.lunarYearMonth }}）。深红为法定节假日，浅红为周末，「班」为调休上班。</p>
+<p class="links">
+  {% if prev_href %}<a href="{{ prev_href }}" rel="prev">上月</a>{% endif %}
+  <a href="/y/{{ year }}">{{ year }}年历</a>
+  {% if next_href %}<a href="{{ next_href }}" rel="next">下月</a>{% endif %}
+  <a href="/fangjia/{{ year }}">放假安排</a>
+  <a href="/jieqi/{{ year }}">二十四节气</a>
+</p>
+{{ jump_form(cal.year, cal.month, min_year, max_year) }}
+{% if month_terms %}
+<p>
+  本月节气：
+  {% for t in month_terms %}
+  <a href="/jieqi/{{ year }}/{{ t.slug }}">{{ t.name }}</a>{{ t.when.month }}月{{ t.when.day }}日 {{ t.time_text }}{{ "；" if not loop.last else "" }}
+  {% endfor %}
+</p>
+{% endif %}
+{{ month_cal(cal, weekdays) }}
+{{ faq_section(faqs) }}
+{% endblock %}

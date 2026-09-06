@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "macros.html" import month_cal, faq_section %}
+{% block content %}
+<p class="lead">{{ lead }}</p>
+<p class="links">
+  <a href="/">返回首页</a>
+  <a href="/y/{{ year }}">{{ year }}年历</a>
+  <a href="/jieqi/{{ year }}">二十四节气</a>
+  {% if ics_href %}<a href="{{ ics_href }}">下载 {{ year }}年放假日历（ICS）</a>{% endif %}
+  {% if year > min_year %}<a href="/fangjia/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
+  {% if year < max_year %}<a href="/fangjia/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
+</p>
+{% if periods %}
+<table class="data">
+  <caption>{{ year }}年放假与调休</caption>
+  <thead>
+    <tr>
+      <th scope="col">假期</th>
+      <th scope="col">放假时间</th>
+      <th scope="col">天数</th>
+      <th scope="col">调休上班</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in periods %}
+    <tr>
+      <td>{{ p.name }}</td>
+      <td>{{ p.start.month }}月{{ p.start.day }}日{% if p.start != p.end %}–{{ p.end.month }}月{{ p.end.day }}日{% endif %}</td>
+      <td>{{ p.days }}天</td>
+      <td>{% if p.makeup %}{% for d in p.makeup %}{{ d.month }}月{{ d.day }}日{% if not loop.last %}、{% endif %}{% endfor %}{% else %}无{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+<h2>{{ year }}年月历（放假 / 调休）</h2>
+<p>深红为法定节假日，浅红为周末，格子内「班」为调休上班日。</p>
+<section class="cals">
+  {% for cal in months %}
+  {{ month_cal(cal, weekdays, compact=true) }}
+  {% endfor %}
+</section>
+{{ faq_section(faqs) }}
+{% endblock %}
