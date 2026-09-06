@@ -34,6 +34,12 @@ export default function DayCellView({ cell, isToday, isSelected, onSelect }: Pro
   }
 
   const badge = badgeText(cell)
+  const lunarClass = ['day-cell__lunar']
+  if (cell.festival) {
+    lunarClass.push('day-cell__lunar--fest')
+  } else if (cell.solarTerm) {
+    lunarClass.push('day-cell__lunar--term')
+  }
 
   return (
     <button
@@ -44,7 +50,7 @@ export default function DayCellView({ cell, isToday, isSelected, onSelect }: Pro
       aria-pressed={isSelected}
     >
       <span className="day-cell__solar">{cell.day}</span>
-      <span className="day-cell__lunar">{badge ?? cell.lunarText}</span>
+      <span className={lunarClass.join(' ')}>{badge ?? cell.lunarText}</span>
       {cell.isMakeupWorkday ? <span className="day-cell__ban">班</span> : null}
     </button>
   )

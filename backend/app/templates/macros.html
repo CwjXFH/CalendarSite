@@ -9,7 +9,7 @@
   {% endif %}
   <div class="calendar__weekdays">
     {% for w in weekdays %}
-    <div class="calendar__weekday">{{ w }}</div>
+    <div class="calendar__weekday{% if loop.index > 5 %} calendar__weekday--weekend{% endif %}">{{ w }}</div>
     {% endfor %}
   </div>
   <div class="calendar__grid">
@@ -18,9 +18,9 @@
       <div class="day-cell{% if cell.isCurrentMonth == false %} day-cell--muted{% endif %}{% if cell.isLegalHoliday %} day-cell--holiday{% elif cell.isMakeupWorkday %} day-cell--work{% elif cell.isWeekend %} day-cell--weekend{% endif %}{% if today and cell.date == today %} day-cell--today{% endif %}{% if cell.solarTerm %} day-cell--term{% endif %}">
         <span class="day-cell__solar">{{ cell.day }}</span>
         {% if compact == false %}
-        <span class="day-cell__lunar">{{ cell.festival or cell.solarTerm or cell.lunarText }}</span>
+        <span class="day-cell__lunar{% if cell.festival %} day-cell__lunar--fest{% elif cell.solarTerm %} day-cell__lunar--term{% endif %}">{{ cell.festival or cell.solarTerm or cell.lunarText }}</span>
         {% elif cell.festival or cell.solarTerm %}
-        <span class="day-cell__lunar">{{ cell.festival or cell.solarTerm }}</span>
+        <span class="day-cell__lunar{% if cell.festival %} day-cell__lunar--fest{% elif cell.solarTerm %} day-cell__lunar--term{% endif %}">{{ cell.festival or cell.solarTerm }}</span>
         {% endif %}
         {% if cell.isMakeupWorkday %}<span class="day-cell__ban">班</span>{% endif %}
       </div>

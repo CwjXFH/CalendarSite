@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   daysBetween,
+  lunarParts,
   nextHolidayBar,
   parseDateQuery,
   parseHomeQuery,
@@ -39,5 +40,21 @@ assert.deepEqual(
   { y: 2026, m: 9, d: 25 },
 )
 assert.equal(resolveSearch('不存在的节', today, 2026, [], periods), null)
+
+assert.deepEqual(
+  lunarParts({
+    date: '2026-09-24',
+    day: 24,
+    lunarText: '十四',
+    lunarYearMonth: '丙午年八月',
+    festival: null,
+    solarTerm: null,
+    isWeekend: false,
+    isLegalHoliday: false,
+    isMakeupWorkday: false,
+    isCurrentMonth: true,
+  }),
+  { ganZhi: '丙午年', monthDay: '八月十四' },
+)
 
 console.log('logic.check ok')

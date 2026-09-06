@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% from "macros.html" import month_cal, faq_section %}
 {% block content %}
-<p class="page__lede">
+<p class="topic-links topic-links--year">
   <a href="/fangjia/{{ year }}">放假安排</a>
-  · <a href="/jieqi/{{ year }}">二十四节气</a>
-  {% if year > min_year %} · <a href="/y/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
-  {% if year < max_year %} · <a href="/y/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
+  <a href="/jieqi/{{ year }}">二十四节气</a>
+  {% if year > min_year %}<a href="/y/{{ year - 1 }}">{{ year - 1 }}年</a>{% endif %}
+  {% if year < max_year %}<a href="/y/{{ year + 1 }}">{{ year + 1 }}年</a>{% endif %}
 </p>
 <section class="cals">
   {% for cal in months %}
