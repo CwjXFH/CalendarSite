@@ -441,6 +441,7 @@ body {
   min-height: 78px;
   padding: 8px 6px;
   border: 0;
+  border-radius: 0;
   background: transparent;
   display: flex;
   flex-direction: column;
