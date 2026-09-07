@@ -266,7 +266,7 @@ export default function CalendarPage() {
           <a className="site-brand" href="/">
             <img className="site-logo" src="/logo.svg" width={40} height={40} alt="" />
             <span className="site-brand__text">
-              <span className="site-name">万年历</span>
+              <h1 className="site-name">万年历</h1>
               {headerLunar ? <span className="site-lunar">{headerLunar}</span> : null}
             </span>
           </a>
