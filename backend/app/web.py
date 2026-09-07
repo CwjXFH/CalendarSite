@@ -26,7 +26,7 @@ from app.services.jieqi import (
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
-SEO_CSS_VER = "20260906l"
+SEO_CSS_VER = "20260907a"
 
 WEEKDAYS = ("一", "二", "三", "四", "五", "六", "日")
 
@@ -49,7 +49,6 @@ def _month_view(year: int, month: int) -> dict:
         "lunarYearMonth": cal.lunarYearMonth,
         "weeks": [days[i : i + 7] for i in range(0, 42, 7)],
         "href": f"/y/{year}/m/{month}",
-        "home_href": f"/?y={year}&m={month}",
     }
 
 
@@ -611,71 +610,93 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
     )
 
 
-def _urlset(entries: list[tuple[str, str, str]]) -> str:
+def _lastmod(year: int | None, today: date) -> str:
+    if year is None or year >= today.year:
+        return today.isoformat()
+    return date(year, 12, 31).isoformat()
+
+
+def _urlset(entries: list[tuple[str, str, str, str]]) -> str:
     parts = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
-    for path, freq, prio in entries:
+    for path, lastmod, freq, prio in entries:
         loc = escape(f"{SITE_URL}{path}")
         parts.append(
-            f"<url><loc>{loc}</loc><changefreq>{freq}</changefreq><priority>{prio}</priority></url>"
+            f"<url><loc>{loc}</loc><lastmod>{lastmod}</lastmod>"
+            f"<changefreq>{freq}</changefreq><priority>{prio}</priority></url>"
         )
     parts.append("</urlset>")
     return "\n".join(parts)
 
 
-_SITEMAP_INDEX = "\n".join(
-    [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-        f"<sitemap><loc>{escape(SITE_URL)}/sitemap-core.xml</loc></sitemap>",
-        f"<sitemap><loc>{escape(SITE_URL)}/sitemap-months.xml</loc></sitemap>",
-        f"<sitemap><loc>{escape(SITE_URL)}/sitemap-jieqi.xml</loc></sitemap>",
-        "</sitemapindex>",
-    ]
-)
+def _sitemap_index_xml(today: str) -> str:
+    loc = escape(SITE_URL)
+    return "\n".join(
+        [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+            f"<sitemap><loc>{loc}/sitemap-core.xml</loc><lastmod>{today}</lastmod></sitemap>",
+            f"<sitemap><loc>{loc}/sitemap-months.xml</loc><lastmod>{today}</lastmod></sitemap>",
+            f"<sitemap><loc>{loc}/sitemap-jieqi.xml</loc><lastmod>{today}</lastmod></sitemap>",
+            "</sitemapindex>",
+        ]
+    )
 
 
 @lru_cache(maxsize=8)
-def _sitemap_urlset(kind: str, current: int, upper: int, holiday_key: str) -> str:
+def _sitemap_urlset(
+    kind: str, today: str, current: int, upper: int, holiday_key: str
+) -> str:
+    today_d = date.fromisoformat(today)
     holidays = [int(item) for item in holiday_key.split(",") if item]
-    entries: list[tuple[str, str, str]] = []
+    entries: list[tuple[str, str, str, str]] = []
     if kind == "core":
-        entries.append(("/", "daily", "1.0"))
+        entries.append(("/", _lastmod(None, today_d), "daily", "1.0"))
         for year in holidays:
             entries.append(
-                (f"/fangjia/{year}", "weekly" if year == current else "yearly", "0.9")
+                (
+                    f"/fangjia/{year}",
+                    _lastmod(year, today_d),
+                    "weekly" if year == current else "yearly",
+                    "0.9",
+                )
             )
         for year in range(MIN_YEAR, upper + 1):
             freq = "weekly" if year == current else "yearly"
             prio = "0.8" if year == current else "0.5"
-            entries.append((f"/y/{year}", freq, prio))
-            entries.append((f"/jieqi/{year}", freq, prio))
+            lastmod = _lastmod(year, today_d)
+            entries.append((f"/y/{year}", lastmod, freq, prio))
+            entries.append((f"/jieqi/{year}", lastmod, freq, prio))
     elif kind == "months":
         for year in range(MIN_YEAR, upper + 1):
             freq = "weekly" if year == current else "yearly"
             prio = "0.6" if year == current else "0.4"
+            lastmod = _lastmod(year, today_d)
             for month in range(1, 13):
-                entries.append((f"/y/{year}/m/{month}", freq, prio))
+                entries.append((f"/y/{year}/m/{month}", lastmod, freq, prio))
     elif kind == "jieqi":
         slugs = tuple(JIEQI_SLUG.values())
         for year in range(MIN_YEAR, upper + 1):
             freq = "weekly" if year == current else "yearly"
             prio = "0.6" if year == current else "0.4"
+            lastmod = _lastmod(year, today_d)
             for slug in slugs:
-                entries.append((f"/jieqi/{year}/{slug}", freq, prio))
+                entries.append((f"/jieqi/{year}/{slug}", lastmod, freq, prio))
     else:
         raise KeyError(kind)
     return _urlset(entries)
 
 
 def _sitemap_xml(kind: str) -> str:
+    today = date.today()
     if kind == "index":
-        return _SITEMAP_INDEX
+        return _sitemap_index_xml(today.isoformat())
     return _sitemap_urlset(
         kind,
-        date.today().year,
+        today.isoformat(),
+        today.year,
         max_year(),
         ",".join(str(year) for year in holiday_years()),
     )

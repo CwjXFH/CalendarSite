@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -32,8 +33,11 @@ def test_year_page() -> None:
     text = response.text
     assert "2026年公历农历日历" in text
     assert "/y/2026/m/9" in text
-    assert "/?y=2026&amp;m=9" not in text
-    assert "/?y=2026&m=9" not in text
+    assert "/?y=" not in text
+    assert "/gift.svg?v=20260906p" in text
+    assert "/leaf.svg?v=20260906p" in text
+    assert "ico--cal" not in text
+    assert "ico--leaf" not in text
     assert "月历" in text
     assert "常见问题" in text
     assert "FAQPage" in text
@@ -41,7 +45,7 @@ def test_year_page() -> None:
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
     assert "公历农历对照" in _attr(text, 'name="description" content="')
     assert 'class="page-main"' in text
-    assert 'href="/seo.css?v=20260906l"' in text
+    assert 'href="/seo.css?v=20260907a"' in text
     assert 'src="/logo.svg"' in text
     assert "放假安排放假" not in text
     assert "二十四节气节气" not in text
@@ -51,6 +55,18 @@ def test_year_page() -> None:
     assert "topic-capsules" in text
     assert "暂无宜忌" not in text
     assert "yiji" not in text
+
+
+def test_seo_html_has_no_query_year_links() -> None:
+    root = Path(__file__).resolve().parents[2]
+    files = [
+        root / "backend" / "app" / "web.py",
+        *sorted((root / "backend" / "app" / "templates").glob("*.html")),
+        root / "frontend" / "index.html",
+        root / "frontend" / "src" / "pages" / "CalendarPage.tsx",
+    ]
+    for path in files:
+        assert "/?y=" not in path.read_text(encoding="utf-8"), path
 
 
 def test_seo_css_is_served() -> None:
@@ -71,6 +87,13 @@ def test_seo_css_is_served() -> None:
     assert "--today-fill: #f3ead8;" not in response.text
     assert ".day-cell--today {\n  background: var(--today-fill);" in response.text
     assert ".day-cell__lunar--term {\n  color: var(--term);\n  font-weight: 650;\n}" in response.text
+    assert ".capsule__icon" in response.text
+    assert ".ico--cal" not in response.text
+    assert ".ico--leaf" not in response.text
+    root = Path(__file__).resolve().parents[2]
+    frontend = (root / "frontend" / "public" / "seo.css").read_text(encoding="utf-8")
+    backend = (root / "backend" / "app" / "static" / "seo.css").read_text(encoding="utf-8")
+    assert frontend == backend == response.text
 
 
 def test_logo_svg_is_image() -> None:
@@ -151,6 +174,10 @@ def test_homepage_pixel_icons_and_grid() -> None:
     assert "cal-nav__today" in page
     assert "<Select" not in page
     assert "holiday-bar__sub" in page
+    assert ".holiday-bar__main {\n  display: flex;\n  flex-direction: row;" in css
+    index = (root / "frontend" / "index.html").read_text(encoding="utf-8")
+    assert 'property="og:image" content="https://wannianli.site/logo.svg"' in index
+    assert '<h1 className="site-name">万年历</h1>' in page
     assert ".day-cell__lunar--term {\n  color: var(--term);\n  font-weight: 650;" in css
     assert ".day-cell--selected:not(.day-cell--holiday):not(.day-cell--work):not(.day-cell--today) {\n  background: var(--selected-fill);" in css
     assert ".day-cell--today {\n  background: var(--today-fill);" in css
@@ -271,6 +298,9 @@ def test_sitemap_index_and_parts() -> None:
         "https://wannianli.site/sitemap-months.xml",
         "https://wannianli.site/sitemap-jieqi.xml",
     ]
+    today = date.today().isoformat()
+    index_lastmods = [node.text for node in root.findall("sm:sitemap/sm:lastmod", NS)]
+    assert index_lastmods == [today, today, today]
     assert client.head("/sitemap.xml").status_code == 200
 
     core = client.get("/sitemap-core.xml")
@@ -280,7 +310,11 @@ def test_sitemap_index_and_parts() -> None:
         assert response.status_code == 200
         parsed = ElementTree.fromstring(response.text)
         assert parsed.tag.endswith("urlset")
-    assert "https://wannianli.site/</loc>" in core.text
+        lastmods = [node.text for node in parsed.findall("sm:url/sm:lastmod", NS)]
+        assert lastmods
+        assert all(item is not None and len(item) == 10 for item in lastmods)
+    assert f"<loc>https://wannianli.site/</loc><lastmod>{today}</lastmod>" in core.text
+    assert "<loc>https://wannianli.site/y/2020</loc><lastmod>2020-12-31</lastmod>" in core.text
     assert "https://wannianli.site/y/2026</loc>" in core.text
     assert "https://wannianli.site/jieqi/2026</loc>" in core.text
     assert "https://wannianli.site/fangjia/2026</loc>" in core.text
