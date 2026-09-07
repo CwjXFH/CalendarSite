@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
 import {
   clippedList,
   daysBetween,
@@ -84,6 +86,16 @@ assert.equal(monthLandingDate(2026, 4, today), '2026-04-06')
 assert.notEqual(monthLandingDate(2026, 4, today), '2026-04-01')
 assert.equal(monthLandingDate(2026, 10, today, '2026-09-24'), '2026-10-24')
 assert.equal(monthLandingDate(2026, 2, today, '2026-01-31'), '2026-02-28')
+
+const appTsx = readFileSync(new URL('./src/App.tsx', import.meta.url), 'utf8')
+assert.match(appTsx, /import ['"]dayjs\/locale\/zh-cn['"]/)
+assert.match(appTsx, /dayjs\.locale\(['"]zh-cn['"]\)/)
+assert.match(appTsx, /locale=\{zhCN\}/)
+
+dayjs.locale('zh-cn')
+assert.equal(dayjs('2026-09-01').format('MMM'), '9月')
+assert.equal(dayjs('2026-09-07').format('dd'), '一')
+assert.equal(dayjs('2026-09-06').format('dddd'), '星期日')
 
 const css = readFileSync(new URL('./src/App.css', import.meta.url), 'utf8')
 function cssToken(name: string): string {
