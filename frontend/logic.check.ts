@@ -26,9 +26,12 @@ const periods = [
   { name: '中秋', start: '2026-09-25', end: '2026-09-27', days: 3, makeup: [] },
   { name: '国庆', start: '2026-10-01', end: '2026-10-07', days: 7, makeup: ['2026-09-20'] },
 ]
-const bar = nextHolidayBar(periods, '2026-09-06')
-assert.equal(bar?.period.name, '国庆')
-assert.equal(bar?.long, true)
+const beforeZhongqiu = nextHolidayBar(periods, '2026-09-06')
+assert.equal(beforeZhongqiu?.period.name, '中秋')
+assert.equal(beforeZhongqiu?.long, false)
+const afterZhongqiu = nextHolidayBar(periods, '2026-09-28')
+assert.equal(afterZhongqiu?.period.name, '国庆')
+assert.equal(afterZhongqiu?.long, true)
 assert.equal(nextHolidayBar(periods, '2026-10-08'), null)
 
 const q = parseHomeQuery('?y=2026&m=9&q=白露')

@@ -107,14 +107,11 @@ export function nextHolidayBar(
     .filter((p) => p.start > today)
     .slice()
     .sort((a, b) => a.start.localeCompare(b.start))
-  const longOnes = upcoming.filter((p) => p.days >= minLongDays)
-  if (longOnes.length > 0) {
-    return { period: longOnes[0], long: true }
+  const period = upcoming[0]
+  if (period == null) {
+    return null
   }
-  if (upcoming.length > 0) {
-    return { period: upcoming[0], long: false }
-  }
-  return null
+  return { period, long: period.days >= minLongDays }
 }
 
 export function formatRange(start: string, end: string): string {
