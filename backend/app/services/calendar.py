@@ -4,6 +4,7 @@ from calendar import monthrange
 from datetime import date, timedelta
 from functools import lru_cache
 
+from app.db.database import db_path
 from app.schemas import CalendarResponse, DayCell, DayDetailResponse, NearestTerm
 from app.services.holiday import get_holiday_map
 from app.services.jieqi import JieqiItem, jieqi_around, nearest_jieqi
@@ -114,7 +115,7 @@ def get_day_detail(current: date) -> DayDetailResponse:
 
 
 @lru_cache(maxsize=256)
-def get_calendar_cached(year: int, month: int) -> CalendarResponse:
+def _calendar_cached(year: int, month: int, db_mtime: float) -> CalendarResponse:
     days = _build_days(year, month)
     target_day = min(15, monthrange(year, month)[1])
     header = next(d for d in days if d.isCurrentMonth and d.day == target_day)
@@ -126,5 +127,9 @@ def get_calendar_cached(year: int, month: int) -> CalendarResponse:
     )
 
 
+def get_calendar_cached(year: int, month: int) -> CalendarResponse:
+    return _calendar_cached(year, month, db_path().stat().st_mtime)
+
+
 def clear_calendar_cache() -> None:
-    get_calendar_cached.cache_clear()
+    _calendar_cached.cache_clear()

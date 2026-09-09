@@ -34,7 +34,7 @@ ENV PATH=/venv/bin:$PATH \
 
 COPY --from=build /venv /venv
 COPY app /app
-COPY data/holidays.json /data/holidays.json
+COPY data/calendar.db /data/calendar.db
 
 WORKDIR /app
 
