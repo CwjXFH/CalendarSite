@@ -1,126 +1,44 @@
-"""法定假日与调休补班种子数据（中国大陆）。"""
+"""从 JSON 载入法定假日与调休补班，写入 holiday_days（中国大陆）。
+
+改假日：编辑 data/holidays.json（或 HOLIDAYS_PATH）后重启后端即可。
+"""
+
+import json
+import os
+from pathlib import Path
 
 from app.db.database import get_connection, init_db
 
 # kind: holiday = 法定节假日, workday = 调休上班日
-HOLIDAY_SEED: list[tuple[str, str, str]] = [
-    # 2024
-    ("2024-01-01", "holiday", "元旦"),
-    ("2024-02-10", "holiday", "春节"),
-    ("2024-02-11", "holiday", "春节"),
-    ("2024-02-12", "holiday", "春节"),
-    ("2024-02-13", "holiday", "春节"),
-    ("2024-02-14", "holiday", "春节"),
-    ("2024-02-15", "holiday", "春节"),
-    ("2024-02-16", "holiday", "春节"),
-    ("2024-02-17", "holiday", "春节"),
-    ("2024-02-04", "workday", "春节调休"),
-    ("2024-02-18", "workday", "春节调休"),
-    ("2024-04-04", "holiday", "清明"),
-    ("2024-04-05", "holiday", "清明"),
-    ("2024-04-06", "holiday", "清明"),
-    ("2024-04-07", "workday", "清明调休"),
-    ("2024-05-01", "holiday", "劳动节"),
-    ("2024-05-02", "holiday", "劳动节"),
-    ("2024-05-03", "holiday", "劳动节"),
-    ("2024-05-04", "holiday", "劳动节"),
-    ("2024-05-05", "holiday", "劳动节"),
-    ("2024-04-28", "workday", "劳动节调休"),
-    ("2024-05-11", "workday", "劳动节调休"),
-    ("2024-06-10", "holiday", "端午"),
-    ("2024-09-15", "holiday", "中秋"),
-    ("2024-09-16", "holiday", "中秋"),
-    ("2024-09-17", "holiday", "中秋"),
-    ("2024-09-14", "workday", "中秋调休"),
-    ("2024-10-01", "holiday", "国庆"),
-    ("2024-10-02", "holiday", "国庆"),
-    ("2024-10-03", "holiday", "国庆"),
-    ("2024-10-04", "holiday", "国庆"),
-    ("2024-10-05", "holiday", "国庆"),
-    ("2024-10-06", "holiday", "国庆"),
-    ("2024-10-07", "holiday", "国庆"),
-    ("2024-09-29", "workday", "国庆调休"),
-    ("2024-10-12", "workday", "国庆调休"),
-    # 2025
-    ("2025-01-01", "holiday", "元旦"),
-    ("2025-01-28", "holiday", "春节"),
-    ("2025-01-29", "holiday", "春节"),
-    ("2025-01-30", "holiday", "春节"),
-    ("2025-01-31", "holiday", "春节"),
-    ("2025-02-01", "holiday", "春节"),
-    ("2025-02-02", "holiday", "春节"),
-    ("2025-02-03", "holiday", "春节"),
-    ("2025-02-04", "holiday", "春节"),
-    ("2025-01-26", "workday", "春节调休"),
-    ("2025-02-08", "workday", "春节调休"),
-    ("2025-04-04", "holiday", "清明"),
-    ("2025-04-05", "holiday", "清明"),
-    ("2025-04-06", "holiday", "清明"),
-    ("2025-05-01", "holiday", "劳动节"),
-    ("2025-05-02", "holiday", "劳动节"),
-    ("2025-05-03", "holiday", "劳动节"),
-    ("2025-05-04", "holiday", "劳动节"),
-    ("2025-05-05", "holiday", "劳动节"),
-    ("2025-04-27", "workday", "劳动节调休"),
-    ("2025-05-31", "holiday", "端午"),
-    ("2025-06-01", "holiday", "端午"),
-    ("2025-06-02", "holiday", "端午"),
-    ("2025-10-01", "holiday", "国庆"),
-    ("2025-10-02", "holiday", "国庆"),
-    ("2025-10-03", "holiday", "国庆"),
-    ("2025-10-04", "holiday", "国庆"),
-    ("2025-10-05", "holiday", "国庆"),
-    ("2025-10-06", "holiday", "国庆"),
-    ("2025-10-07", "holiday", "国庆"),
-    ("2025-10-08", "holiday", "国庆中秋"),
-    ("2025-09-28", "workday", "国庆调休"),
-    ("2025-10-11", "workday", "国庆调休"),
-    # 2026（国办发明电〔2025〕7号）
-    ("2026-01-01", "holiday", "元旦"),
-    ("2026-01-02", "holiday", "元旦"),
-    ("2026-01-03", "holiday", "元旦"),
-    ("2026-01-04", "workday", "元旦调休"),
-    ("2026-02-15", "holiday", "春节"),
-    ("2026-02-16", "holiday", "春节"),
-    ("2026-02-17", "holiday", "春节"),
-    ("2026-02-18", "holiday", "春节"),
-    ("2026-02-19", "holiday", "春节"),
-    ("2026-02-20", "holiday", "春节"),
-    ("2026-02-21", "holiday", "春节"),
-    ("2026-02-22", "holiday", "春节"),
-    ("2026-02-23", "holiday", "春节"),
-    ("2026-02-14", "workday", "春节调休"),
-    ("2026-02-28", "workday", "春节调休"),
-    ("2026-04-04", "holiday", "清明"),
-    ("2026-04-05", "holiday", "清明"),
-    ("2026-04-06", "holiday", "清明"),
-    ("2026-05-01", "holiday", "劳动节"),
-    ("2026-05-02", "holiday", "劳动节"),
-    ("2026-05-03", "holiday", "劳动节"),
-    ("2026-05-04", "holiday", "劳动节"),
-    ("2026-05-05", "holiday", "劳动节"),
-    ("2026-05-09", "workday", "劳动节调休"),
-    ("2026-06-19", "holiday", "端午"),
-    ("2026-06-20", "holiday", "端午"),
-    ("2026-06-21", "holiday", "端午"),
-    ("2026-09-25", "holiday", "中秋"),
-    ("2026-09-26", "holiday", "中秋"),
-    ("2026-09-27", "holiday", "中秋"),
-    ("2026-10-01", "holiday", "国庆"),
-    ("2026-10-02", "holiday", "国庆"),
-    ("2026-10-03", "holiday", "国庆"),
-    ("2026-10-04", "holiday", "国庆"),
-    ("2026-10-05", "holiday", "国庆"),
-    ("2026-10-06", "holiday", "国庆"),
-    ("2026-10-07", "holiday", "国庆"),
-    ("2026-09-20", "workday", "国庆调休"),
-    ("2026-10-10", "workday", "国庆调休"),
-]
+DEFAULT_HOLIDAYS_PATH = Path(__file__).resolve().parents[2] / "data" / "holidays.json"
+
+
+def holidays_path() -> Path:
+    """HOLIDAYS_PATH 可为 JSON 文件，或含 holidays.json 的目录。"""
+    override = os.environ.get("HOLIDAYS_PATH", "").strip()
+    path = Path(override) if override else DEFAULT_HOLIDAYS_PATH
+    if path.is_dir():
+        return path / "holidays.json"
+    return path
+
+
+def load_holiday_rows(path: Path | None = None) -> list[tuple[str, str, str]]:
+    source = path or holidays_path()
+    raw = json.loads(source.read_text(encoding="utf-8"))
+    rows: list[tuple[str, str, str]] = []
+    for _year, days in raw.items():
+        for item in days:
+            kind = item["kind"]
+            if kind not in ("holiday", "workday"):
+                raise ValueError(f"invalid holiday kind: {kind}")
+            rows.append((item["date"], kind, item["name"]))
+    return rows
 
 
 def seed_holidays(force: bool = True) -> None:
-    """用种子覆盖 holiday_days。默认覆盖已有数据，避免过期调休日残留。"""
+    """用 JSON 覆盖 holiday_days。默认覆盖已有数据，避免过期调休日残留。"""
     init_db()
+    rows = load_holiday_rows()
     with get_connection() as conn:
         count = conn.execute("SELECT COUNT(*) AS c FROM holiday_days").fetchone()["c"]
         if count > 0 and force is False:
@@ -128,6 +46,6 @@ def seed_holidays(force: bool = True) -> None:
         conn.execute("DELETE FROM holiday_days")
         conn.executemany(
             "INSERT OR REPLACE INTO holiday_days (date, kind, name) VALUES (?, ?, ?)",
-            HOLIDAY_SEED,
+            rows,
         )
         conn.commit()

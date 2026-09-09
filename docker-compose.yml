@@ -1,8 +1,12 @@
 services:
   backend:
     build: ./backend
+    environment:
+      # 容器内路径；换目录挂载时一并改这个变量
+      HOLIDAYS_PATH: /data/holidays.json
     volumes:
-      - calendar-data:/src/data
+      # 改假日：编辑宿主机 JSON 后 `docker compose restart backend`，无需重建镜像
+      - ${HOLIDAYS_FILE:-./backend/data/holidays.json}:/data/holidays.json:ro
     expose:
       - "9000"
     restart: unless-stopped
@@ -17,6 +21,3 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-
-volumes:
-  calendar-data:
