@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -25,8 +25,9 @@ def test_shipped_db_covers_2024_2026() -> None:
     with get_connection() as conn:
         count = conn.execute("SELECT COUNT(*) AS c FROM holiday_days").fetchone()["c"]
     assert count == 108
-    assert holiday_updated(2026) == date(2026, 9, 9)
-    assert holiday_updated(2024) == date(2026, 9, 9)
+    mtime_day = datetime.fromtimestamp(db_path().stat().st_mtime, tz=timezone.utc).date()
+    assert holiday_updated(2026) == mtime_day
+    assert holiday_updated(2024) == mtime_day
     assert holiday_updated(2023) is None
 
 
@@ -47,12 +48,8 @@ def test_db_path_env_and_missing_file(tmp_path: Path, monkeypatch) -> None:
         """
     )
     conn.execute(
-        "CREATE TABLE holiday_meta (year INTEGER PRIMARY KEY, updated TEXT NOT NULL)"
-    )
-    conn.execute(
         "INSERT INTO holiday_days VALUES ('2027-01-01', 'holiday', '元旦')"
     )
-    conn.execute("INSERT INTO holiday_meta VALUES (2027, '2027-01-02')")
     conn.commit()
     conn.close()
     monkeypatch.setenv("DB_PATH", str(path))
@@ -60,6 +57,7 @@ def test_db_path_env_and_missing_file(tmp_path: Path, monkeypatch) -> None:
     assert list_holiday_days(2027) == [
         {"date": "2027-01-01", "kind": "holiday", "name": "元旦"}
     ]
-    assert holiday_updated(2027) == date(2027, 1, 2)
+    mtime_day = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).date()
+    assert holiday_updated(2027) == mtime_day
     monkeypatch.delenv("DB_PATH")
     assert db_path().name == "calendar.db"

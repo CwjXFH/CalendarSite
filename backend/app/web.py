@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from calendar import monthrange
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from email.utils import format_datetime
 from functools import lru_cache
 from pathlib import Path
@@ -15,7 +15,12 @@ from fastapi.templating import Jinja2Templates
 from app.api.v1 import limiter
 from app.config import MIN_YEAR, SITE_NAME, SITE_URL, max_year
 from app.services.calendar import get_calendar_cached
-from app.services.holiday import group_holiday_periods, holiday_updated, holiday_years
+from app.services.holiday import (
+    group_holiday_periods,
+    holiday_mtime,
+    holiday_updated,
+    holiday_years,
+)
 from app.services.jieqi import (
     JIEQI_24,
     JIEQI_BLURB,
@@ -609,12 +614,9 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
             "nav_active": "fangjia",
         },
     )
-    updated = holiday_updated(year)
-    if updated is not None:
-        response.headers["Last-Modified"] = format_datetime(
-            datetime(updated.year, updated.month, updated.day, tzinfo=timezone.utc),
-            usegmt=True,
-        )
+    when = holiday_mtime(year)
+    if when is not None:
+        response.headers["Last-Modified"] = format_datetime(when, usegmt=True)
     return response
 
 

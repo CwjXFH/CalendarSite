@@ -1,38 +1,33 @@
 """法定假日与调休：只从挂载的 calendar.db 读。
 
-改假日：编辑 holiday_days，并更新 holiday_meta.updated（year=0 表示整库，或按年一行）。
-查询每次打开数据库，不缓存行。
+改假日：编辑 holiday_days。放假页 lastmod 用该 db 文件 mtime。查询每次打开数据库，不缓存行。
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
-from app.db.database import get_connection
+from app.db.database import db_path, get_connection
 
 
-def holiday_updated(year: int) -> date | None:
-    """holiday_meta 里该年（或 year=0 整库）变更日；该年无假日则 None。"""
+def holiday_mtime(year: int) -> datetime | None:
+    """该年有假日数据时返回 calendar.db 的 mtime；否则 None。"""
     with get_connection() as conn:
         has_year = conn.execute(
             "SELECT 1 FROM holiday_days WHERE date >= ? AND date <= ? LIMIT 1",
             (f"{year}-01-01", f"{year}-12-31"),
         ).fetchone()
-        if has_year is None:
-            return None
-        row = conn.execute(
-            """
-            SELECT updated FROM holiday_meta
-            WHERE year = ? OR year = 0
-            ORDER BY year DESC
-            LIMIT 1
-            """,
-            (year,),
-        ).fetchone()
-    if row is None:
+    if has_year is None:
         return None
-    return date.fromisoformat(row["updated"])
+    return datetime.fromtimestamp(db_path().stat().st_mtime, tz=timezone.utc)
+
+
+def holiday_updated(year: int) -> date | None:
+    when = holiday_mtime(year)
+    if when is None:
+        return None
+    return when.date()
 
 
 def get_holiday_map(start_date: str, end_date: str) -> dict[str, str]:

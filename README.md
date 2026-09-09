@@ -126,4 +126,4 @@ calendarsite/
 
 - Python 版本：3.14（与本机 uv 环境一致）
 - 农历库：`lunar-python`（`sxtwl` 在 3.14 上无法编译，故改用纯 Python 实现）
-- 法定假日在 `backend/data/calendar.db`（2024–2026）；改 `holiday_days` 并更新 `holiday_meta.updated` 后无需发版（首次需部署以挂上该文件）
+- 法定假日在 `backend/data/calendar.db`（2024–2026）；改 `holiday_days` 后无需发版（首次需部署以挂上该文件）

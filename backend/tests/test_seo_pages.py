@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date
 from email.utils import format_datetime
 from pathlib import Path
 from xml.etree import ElementTree
@@ -6,7 +6,7 @@ from xml.etree import ElementTree
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.services.holiday import group_holiday_periods, holiday_updated
+from app.services.holiday import group_holiday_periods, holiday_mtime, holiday_updated
 from app.services.jieqi import get_jieqi_year
 
 client = TestClient(app)
@@ -225,12 +225,9 @@ def test_fangjia_2026() -> None:
     assert ".ics" not in text
     assert "暂无宜忌" not in text
     assert "yiji" not in text
-    updated = holiday_updated(2026)
-    assert updated is not None
-    assert response.headers["Last-Modified"] == format_datetime(
-        datetime(updated.year, updated.month, updated.day, tzinfo=timezone.utc),
-        usegmt=True,
-    )
+    when = holiday_mtime(2026)
+    assert when is not None
+    assert response.headers["Last-Modified"] == format_datetime(when, usegmt=True)
 
 
 def test_jieqi_2026_table_and_term() -> None:
