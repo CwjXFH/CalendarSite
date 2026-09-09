@@ -21,7 +21,7 @@
 |----|------|
 | 前端 | 最新稳定 React + TypeScript + Vite + Ant Design |
 | 后端 | 最新稳定 FastAPI + Python，uv 管理依赖 |
-| 数据 | holidays.json（法定假日 / 调休） |
+| 数据 | SQLite（挂载 `calendar.db`，法定假日 / 调休） |
 | 农历节气 | 算法计算（lunar-python），不入库 |
 | 部署 | 云服务器 + Docker Compose + Nginx |
 | 版本控制 | Git |
@@ -73,7 +73,7 @@
 
 - 兼容变更可新增字段；删改字段或改语义必须上 `/api/v2`。
 - 统一错误体：`{ "code": "...", "message": "..." }`。
-- 前端不感知假日 JSON / 算法库；后端不感知 React / antd。
+- 前端不感知 SQLite / 算法库；后端不感知 React / antd。
 
 ## 防刷
 
@@ -84,7 +84,7 @@
 
 ## 职责划分
 
-- **JSON**：法定假日、调休上班日（`backend/data/holidays.json`）。
+- **SQLite**：法定假日、调休上班日（挂载的 `calendar.db`，勿提交进仓库）。
 - **算法库**：农历、节气、传统节日文案。
 - **React + antd**：年月选择、月历网格、选中态、周末/假日样式、响应式。
 
@@ -116,7 +116,7 @@ docker compose up --build -d
 
 ```text
 calendarsite/
-├── backend/          # FastAPI + uv + lunar-python
+├── backend/          # FastAPI + uv + SQLite + lunar-python
 ├── frontend/         # React + Vite + TypeScript + Ant Design
 ├── docker-compose.yml
 └── README.md
@@ -126,4 +126,4 @@ calendarsite/
 
 - Python 版本：3.14（与本机 uv 环境一致）
 - 农历库：`lunar-python`（`sxtwl` 在 3.14 上无法编译，故改用纯 Python 实现）
-- 法定假日在 `backend/data/holidays.json`（2024–2026）；改日期并更新 `updated` 后 `docker compose restart backend`，无需发版
+- 法定假日在挂载的 `calendar.db`（首次空表，用 ops API + `OPS_TOKEN` 写入）；`X-Ops-Token` 鉴权。首次需部署以挂上数据目录

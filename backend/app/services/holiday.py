@@ -1,95 +1,72 @@
-"""法定假日与调休：只从 JSON 读（HOLIDAYS_PATH / data/holidays.json）。
+"""法定假日与调休：只从挂载的 calendar.db 读。
 
-改假日：编辑 JSON 并更新 updated 后重启后端。
+改假日：ops API 写 holiday_days。放假页 lastmod 用该 db 文件 mtime。查询每次打开数据库。
 """
 
 from __future__ import annotations
 
-import json
-import os
 from dataclasses import dataclass, field
-from datetime import date, timedelta
-from functools import lru_cache
-from pathlib import Path
+from datetime import date, datetime, timedelta, timezone
 
-# kind: holiday = 法定节假日, workday = 调休上班日
-DEFAULT_HOLIDAYS_PATH = Path(__file__).resolve().parents[2] / "data" / "holidays.json"
+from app.db.database import db_path, get_connection
 
 
-def holidays_path() -> Path:
-    """HOLIDAYS_PATH 可为 JSON 文件，或含 holidays.json 的目录。"""
-    override = os.environ.get("HOLIDAYS_PATH", "").strip()
-    path = Path(override) if override else DEFAULT_HOLIDAYS_PATH
-    if path.is_dir():
-        return path / "holidays.json"
-    return path
-
-
-@lru_cache(maxsize=8)
-def _holiday_payload(path: str) -> dict:
-    return json.loads(Path(path).read_text(encoding="utf-8"))
-
-
-def _payload(path: Path | None = None) -> dict:
-    return _holiday_payload(str(path or holidays_path()))
-
-
-def _year_day_lists(raw: dict) -> dict[str, list]:
-    return {
-        key: value
-        for key, value in raw.items()
-        if key != "updated" and isinstance(value, list)
-    }
-
-
-def load_holiday_rows(path: Path | None = None) -> list[tuple[str, str, str]]:
-    raw = _payload(path)
-    rows: list[tuple[str, str, str]] = []
-    for days in _year_day_lists(raw).values():
-        for item in days:
-            kind = item["kind"]
-            if kind not in ("holiday", "workday"):
-                raise ValueError(f"invalid holiday kind: {kind}")
-            rows.append((item["date"], kind, item["name"]))
-    return rows
-
-
-def holiday_updated(year: int, path: Path | None = None) -> date | None:
-    """JSON 里该年放假数据的变更日；无记录则 None。updated 可为整文件日期或按年 map。"""
-    raw = _payload(path)
-    if str(year) not in _year_day_lists(raw):
+def holiday_mtime(year: int) -> datetime | None:
+    """该年有假日数据时返回 calendar.db 的 mtime；否则 None。"""
+    with get_connection() as conn:
+        has_year = conn.execute(
+            "SELECT 1 FROM holiday_days WHERE date >= ? AND date <= ? LIMIT 1",
+            (f"{year}-01-01", f"{year}-12-31"),
+        ).fetchone()
+    if has_year is None:
         return None
-    updated = raw.get("updated")
-    if isinstance(updated, dict):
-        value = updated.get(str(year))
-        return date.fromisoformat(value) if value else None
-    if isinstance(updated, str) and updated:
-        return date.fromisoformat(updated)
-    return None
+    return datetime.fromtimestamp(db_path().stat().st_mtime, tz=timezone.utc)
+
+
+def holiday_updated(year: int) -> date | None:
+    when = holiday_mtime(year)
+    if when is None:
+        return None
+    return when.date()
 
 
 def get_holiday_map(start_date: str, end_date: str) -> dict[str, str]:
     """返回 date -> kind（holiday / workday）。"""
-    return {
-        day: kind
-        for day, kind, _name in load_holiday_rows()
-        if start_date <= day <= end_date
-    }
+    with get_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT date, kind
+            FROM holiday_days
+            WHERE date >= ? AND date <= ?
+            """,
+            (start_date, end_date),
+        ).fetchall()
+    return {row["date"]: row["kind"] for row in rows}
 
 
 def list_holiday_days(year: int) -> list[dict[str, str]]:
-    start, end = f"{year}-01-01", f"{year}-12-31"
-    rows = [
-        {"date": day, "kind": kind, "name": name or ""}
-        for day, kind, name in load_holiday_rows()
-        if start <= day <= end
+    with get_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT date, kind, name
+            FROM holiday_days
+            WHERE date >= ? AND date <= ?
+            ORDER BY date
+            """,
+            (f"{year}-01-01", f"{year}-12-31"),
+        ).fetchall()
+    return [
+        {"date": row["date"], "kind": row["kind"], "name": row["name"] or ""}
+        for row in rows
     ]
-    rows.sort(key=lambda row: row["date"])
-    return rows
 
 
 def holiday_years() -> list[int]:
-    return sorted({int(day[:4]) for day, _kind, _name in load_holiday_rows()})
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT substr(date, 1, 4) AS y FROM holiday_days ORDER BY y"
+        ).fetchall()
+    return [int(row["y"]) for row in rows]
 
 
 @dataclass
@@ -128,3 +105,22 @@ def group_holiday_periods(year: int) -> list[HolidayPeriod]:
             continue
         matched.makeup.append(work_day)
     return periods
+
+
+def upsert_holiday_day(day: str, kind: str, name: str) -> None:
+    date.fromisoformat(day)
+    if kind not in ("holiday", "workday"):
+        raise ValueError(f"invalid holiday kind: {kind}")
+    with get_connection(write=True) as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO holiday_days (date, kind, name) VALUES (?, ?, ?)",
+            (day, kind, name),
+        )
+        conn.commit()
+
+
+def delete_holiday_day(day: str) -> None:
+    date.fromisoformat(day)
+    with get_connection(write=True) as conn:
+        conn.execute("DELETE FROM holiday_days WHERE date = ?", (day,))
+        conn.commit()
