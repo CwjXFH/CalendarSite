@@ -82,4 +82,3 @@ coverage.xml
 **/docker-compose*
 
 data/*.db
-!data/calendar.db

@@ -34,8 +34,8 @@ ENV PATH=/venv/bin:$PATH \
 
 COPY --from=build /venv /venv
 COPY app /app
-COPY data/calendar.db /data/calendar.db
 
 WORKDIR /app
+RUN mkdir -p /data
 
 CMD ["python", "-m", "main"]

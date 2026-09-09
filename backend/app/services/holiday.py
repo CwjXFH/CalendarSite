@@ -1,6 +1,6 @@
 """法定假日与调休：只从挂载的 calendar.db 读。
 
-改假日：编辑 holiday_days。放假页 lastmod 用该 db 文件 mtime。查询每次打开数据库，不缓存行。
+改假日：ops API 写 holiday_days。放假页 lastmod 用该 db 文件 mtime。查询每次打开数据库。
 """
 
 from __future__ import annotations
@@ -105,3 +105,22 @@ def group_holiday_periods(year: int) -> list[HolidayPeriod]:
             continue
         matched.makeup.append(work_day)
     return periods
+
+
+def upsert_holiday_day(day: str, kind: str, name: str) -> None:
+    date.fromisoformat(day)
+    if kind not in ("holiday", "workday"):
+        raise ValueError(f"invalid holiday kind: {kind}")
+    with get_connection(write=True) as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO holiday_days (date, kind, name) VALUES (?, ?, ?)",
+            (day, kind, name),
+        )
+        conn.commit()
+
+
+def delete_holiday_day(day: str) -> None:
+    date.fromisoformat(day)
+    with get_connection(write=True) as conn:
+        conn.execute("DELETE FROM holiday_days WHERE date = ?", (day,))
+        conn.commit()

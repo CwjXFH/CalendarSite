@@ -3,5 +3,4 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 data/*.db
-!data/calendar.db
 .ruff_cache/

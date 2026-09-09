@@ -2,11 +2,11 @@ services:
   backend:
     build: ./backend
     environment:
-      # 容器内路径；换挂载位置时一并改这个变量
       DB_PATH: /data/calendar.db
+      OPS_TOKEN: ${OPS_TOKEN:-}
     volumes:
-      # 改假日：编辑宿主机 calendar.db 的 holiday_days；无需重建镜像。放假 lastmod 用该文件 mtime
-      - ${CALENDAR_DB:-./backend/data/calendar.db}:/data/calendar.db:ro
+      # 挂载数据目录；首次建空 calendar.db。假日用 ops API（X-Ops-Token）维护，勿提交 sqlite
+      - ${CALENDAR_DATA:-./backend/data}:/data
     expose:
       - "9000"
     restart: unless-stopped
