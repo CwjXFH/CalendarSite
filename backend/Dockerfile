@@ -34,8 +34,8 @@ ENV PATH=/venv/bin:$PATH \
 
 COPY --from=build /venv /venv
 COPY app /app
+COPY data/holidays.json /data/holidays.json
 
 WORKDIR /app
-RUN mkdir -p /app/data
 
 CMD ["python", "-m", "main"]

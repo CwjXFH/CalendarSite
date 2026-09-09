@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 from calendar import monthrange
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
+from email.utils import format_datetime
 from functools import lru_cache
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -13,6 +14,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.api.v1 import limiter
 from app.config import MIN_YEAR, SITE_NAME, SITE_URL, max_year
+from app.db.seed import holiday_updated
 from app.services.calendar import get_calendar_cached
 from app.services.holiday import group_holiday_periods, holiday_years
 from app.services.jieqi import (
@@ -591,7 +593,7 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
     else:
         lead = f"{year}年国务院办公厅放假安排尚未录入本站，请以官方通知为准。"
         description = f"{year}年放假安排（待公布）与调休日历。"
-    return _page(
+    response = _page(
         request,
         template="fangjia.html",
         title=f"{year}年放假安排与调休日历 - 万年历",
@@ -608,12 +610,26 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
             "nav_active": "fangjia",
         },
     )
+    updated = holiday_updated(year)
+    if updated is not None:
+        response.headers["Last-Modified"] = format_datetime(
+            datetime(updated.year, updated.month, updated.day, tzinfo=timezone.utc),
+            usegmt=True,
+        )
+    return response
 
 
 def _lastmod(year: int | None, today: date) -> str:
     if year is None or year >= today.year:
         return today.isoformat()
     return date(year, 12, 31).isoformat()
+
+
+def _fangjia_lastmod(year: int, today: date) -> str:
+    updated = holiday_updated(year)
+    if updated is not None:
+        return updated.isoformat()
+    return _lastmod(year, today)
 
 
 def _urlset(entries: list[tuple[str, str, str, str]]) -> str:
@@ -650,15 +666,20 @@ def _sitemap_urlset(
     kind: str, today: str, current: int, upper: int, holiday_key: str
 ) -> str:
     today_d = date.fromisoformat(today)
-    holidays = [int(item) for item in holiday_key.split(",") if item]
+    holidays: list[tuple[int, str]] = []
+    for item in holiday_key.split(","):
+        if item == "":
+            continue
+        year_s, lastmod = item.split(":", 1)
+        holidays.append((int(year_s), lastmod))
     entries: list[tuple[str, str, str, str]] = []
     if kind == "core":
         entries.append(("/", _lastmod(None, today_d), "daily", "1.0"))
-        for year in holidays:
+        for year, lastmod in holidays:
             entries.append(
                 (
                     f"/fangjia/{year}",
-                    _lastmod(year, today_d),
+                    lastmod,
                     "weekly" if year == current else "yearly",
                     "0.9",
                 )
@@ -693,12 +714,16 @@ def _sitemap_xml(kind: str) -> str:
     today = date.today()
     if kind == "index":
         return _sitemap_index_xml(today.isoformat())
+    years = holiday_years()
+    holiday_key = ",".join(
+        f"{year}:{_fangjia_lastmod(year, today)}" for year in years
+    )
     return _sitemap_urlset(
         kind,
         today.isoformat(),
         today.year,
         max_year(),
-        ",".join(str(year) for year in holiday_years()),
+        holiday_key,
     )
 
 
