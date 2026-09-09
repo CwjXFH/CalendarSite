@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.api.ops import router as ops_router
 from app.api.v1 import limiter
 from app.api.v1 import router as v1_router
 from app.db.database import require_db
@@ -36,6 +37,7 @@ app.add_middleware(
 )
 
 app.include_router(v1_router)
+app.include_router(ops_router)
 app.include_router(web_router)
 
 

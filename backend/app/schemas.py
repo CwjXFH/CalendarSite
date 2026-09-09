@@ -72,23 +72,6 @@ class HolidaysResponse(BaseModel):
     periods: list[HolidayPeriodOut]
 
 
-class HolidayDayIn(BaseModel):
-    date: str = Field(description="公历日期 YYYY-MM-DD")
-    kind: str = Field(description="holiday 或 workday")
-    name: str = Field(default="")
-
-
-class HolidayDayOut(BaseModel):
-    date: str
-    kind: str
-    name: str
-
-
-class OpsHolidaysResponse(BaseModel):
-    year: int
-    days: list[HolidayDayOut]
-
-
 class ErrorResponse(BaseModel):
     code: str
     message: str
