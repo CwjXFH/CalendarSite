@@ -14,9 +14,8 @@ from fastapi.templating import Jinja2Templates
 
 from app.api.v1 import limiter
 from app.config import MIN_YEAR, SITE_NAME, SITE_URL, max_year
-from app.db.seed import holiday_updated
 from app.services.calendar import get_calendar_cached
-from app.services.holiday import group_holiday_periods, holiday_years
+from app.services.holiday import group_holiday_periods, holiday_updated, holiday_years
 from app.services.jieqi import (
     JIEQI_24,
     JIEQI_BLURB,

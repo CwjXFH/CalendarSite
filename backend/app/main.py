@@ -10,13 +10,13 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1 import limiter
 from app.api.v1 import router as v1_router
-from app.db.seed import seed_holidays
+from app.services.holiday import load_holiday_rows
 from app.web import router as web_router
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    seed_holidays()
+    load_holiday_rows()
     yield
 
 
