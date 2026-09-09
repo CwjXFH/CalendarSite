@@ -5,7 +5,7 @@ services:
       # 容器内路径；换目录挂载时一并改这个变量
       HOLIDAYS_PATH: /data/holidays.json
     volumes:
-      # 改假日：编辑宿主机 JSON 后 `docker compose restart backend`，无需重建镜像
+      # 改假日：编辑 JSON 并改 updated，然后 `docker compose restart backend`（无需重建镜像）
       - ${HOLIDAYS_FILE:-./backend/data/holidays.json}:/data/holidays.json:ro
     expose:
       - "9000"

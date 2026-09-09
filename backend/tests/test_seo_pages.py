@@ -1,9 +1,11 @@
-from datetime import date
+from datetime import date, datetime, timezone
+from email.utils import format_datetime
 from pathlib import Path
 from xml.etree import ElementTree
 
 from fastapi.testclient import TestClient
 
+from app.db.seed import holiday_updated
 from app.main import app
 from app.services.holiday import group_holiday_periods
 from app.services.jieqi import get_jieqi_year
@@ -224,6 +226,12 @@ def test_fangjia_2026() -> None:
     assert ".ics" not in text
     assert "暂无宜忌" not in text
     assert "yiji" not in text
+    updated = holiday_updated(2026)
+    assert updated is not None
+    assert response.headers["Last-Modified"] == format_datetime(
+        datetime(updated.year, updated.month, updated.day, tzinfo=timezone.utc),
+        usegmt=True,
+    )
 
 
 def test_jieqi_2026_table_and_term() -> None:
@@ -318,6 +326,18 @@ def test_sitemap_index_and_parts() -> None:
     assert "https://wannianli.site/y/2026</loc>" in core.text
     assert "https://wannianli.site/jieqi/2026</loc>" in core.text
     assert "https://wannianli.site/fangjia/2026</loc>" in core.text
+    fangjia_updated = holiday_updated(2026)
+    assert fangjia_updated is not None
+    fangjia_day = fangjia_updated.isoformat()
+    assert (
+        f"<loc>https://wannianli.site/fangjia/2026</loc><lastmod>{fangjia_day}</lastmod>"
+        in core.text
+    )
+    assert (
+        f"<loc>https://wannianli.site/fangjia/2024</loc><lastmod>{fangjia_day}</lastmod>"
+        in core.text
+    )
+    assert "<loc>https://wannianli.site/fangjia/2024</loc><lastmod>2024-12-31</lastmod>" not in core.text
     assert "https://wannianli.site/y/2026/m/9</loc>" in months.text
     assert "https://wannianli.site/jieqi/2026/lichun</loc>" in jieqi.text
 

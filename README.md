@@ -126,4 +126,4 @@ calendarsite/
 
 - Python 版本：3.14（与本机 uv 环境一致）
 - 农历库：`lunar-python`（`sxtwl` 在 3.14 上无法编译，故改用纯 Python 实现）
-- 法定假日在 `backend/data/holidays.json`（2024–2026）；部署后改该文件并 `docker compose restart backend` 即可，无需发版
+- 法定假日在 `backend/data/holidays.json`（2024–2026）；改日期并更新 `updated` 后 `docker compose restart backend`，无需发版
