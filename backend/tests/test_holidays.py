@@ -2,7 +2,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from app.db.seed import (
+from app.services.holiday import (
     DEFAULT_HOLIDAYS_PATH,
     holiday_updated,
     holidays_path,

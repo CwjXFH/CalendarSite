@@ -5,9 +5,8 @@ from xml.etree import ElementTree
 
 from fastapi.testclient import TestClient
 
-from app.db.seed import holiday_updated
 from app.main import app
-from app.services.holiday import group_holiday_periods
+from app.services.holiday import group_holiday_periods, holiday_updated
 from app.services.jieqi import get_jieqi_year
 
 client = TestClient(app)
