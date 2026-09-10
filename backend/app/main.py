@@ -12,12 +12,14 @@ from app.api.ops import router as ops_router
 from app.api.v1 import limiter
 from app.api.v1 import router as v1_router
 from app.db.database import require_db
+from app.services.holiday import bootstrap_holidays_if_empty
 from app.web import router as web_router
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     require_db()
+    bootstrap_holidays_if_empty()
     yield
 
 

@@ -1,14 +1,18 @@
 """法定假日与调休：只从挂载的 calendar.db 读。
 
-改假日：ops API 写 holiday_days。放假页 lastmod 用该 db 文件 mtime。查询每次打开数据库。
+空表时写入 holidays.bootstrap.json（2024–2026）。之后改假日走 ops API。
 """
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 
 from app.db.database import db_path, get_connection
+
+BOOTSTRAP_PATH = Path(__file__).resolve().parents[1] / "data" / "holidays.bootstrap.json"
 
 
 def holiday_mtime(year: int) -> datetime | None:
@@ -123,4 +127,29 @@ def delete_holiday_day(day: str) -> None:
     date.fromisoformat(day)
     with get_connection(write=True) as conn:
         conn.execute("DELETE FROM holiday_days WHERE date = ?", (day,))
+        conn.commit()
+
+
+def _bootstrap_rows() -> list[tuple[str, str, str]]:
+    raw = json.loads(BOOTSTRAP_PATH.read_text(encoding="utf-8"))
+    rows: list[tuple[str, str, str]] = []
+    for item in raw:
+        kind = item["kind"]
+        if kind not in ("holiday", "workday"):
+            raise ValueError(f"invalid holiday kind: {kind}")
+        rows.append((item["date"], kind, item["name"]))
+    return rows
+
+
+def bootstrap_holidays_if_empty() -> None:
+    """仅当 holiday_days 为空时写入 2024–2026 bootstrap，已有行则不动。"""
+    rows = _bootstrap_rows()
+    with get_connection(write=True) as conn:
+        count = conn.execute("SELECT COUNT(*) AS c FROM holiday_days").fetchone()["c"]
+        if count > 0:
+            return
+        conn.executemany(
+            "INSERT INTO holiday_days (date, kind, name) VALUES (?, ?, ?)",
+            rows,
+        )
         conn.commit()

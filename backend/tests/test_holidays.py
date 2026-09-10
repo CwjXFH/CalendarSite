@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from app.db.database import db_path, get_connection, require_db
 from app.main import app
 from app.services.holiday import (
+    bootstrap_holidays_if_empty,
     get_holiday_map,
     holiday_updated,
     holiday_years,
@@ -36,15 +37,21 @@ def test_shipped_fixture_covers_2024_2026() -> None:
     assert holiday_updated(2023) is None
 
 
-def test_db_path_env_and_missing_file(tmp_path: Path, monkeypatch) -> None:
+def test_empty_db_gets_bootstrap(tmp_path: Path, monkeypatch) -> None:
     missing = tmp_path / "missing.db"
     monkeypatch.setenv("DB_PATH", str(missing))
     with pytest.raises(FileNotFoundError):
         get_connection()
     require_db()
+    bootstrap_holidays_if_empty()
     assert missing.is_file()
-    assert list_holiday_days(2026) == []
+    assert holiday_years() == [2024, 2025, 2026]
+    with get_connection() as conn:
+        count = conn.execute("SELECT COUNT(*) AS c FROM holiday_days").fetchone()["c"]
+    assert count == 108
 
+
+def test_nonempty_db_is_left_alone(tmp_path: Path, monkeypatch) -> None:
     path = tmp_path / "calendar.db"
     conn = sqlite3.connect(path)
     conn.execute(
@@ -62,7 +69,10 @@ def test_db_path_env_and_missing_file(tmp_path: Path, monkeypatch) -> None:
     conn.commit()
     conn.close()
     monkeypatch.setenv("DB_PATH", str(path))
+    require_db()
+    bootstrap_holidays_if_empty()
     assert db_path() == path
+    assert holiday_years() == [2027]
     assert list_holiday_days(2027) == [
         {"date": "2027-01-01", "kind": "holiday", "name": "元旦"}
     ]
