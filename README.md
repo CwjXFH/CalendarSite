@@ -126,4 +126,6 @@ calendarsite/
 
 - Python 版本：3.14（与本机 uv 环境一致）
 - 农历库：`lunar-python`（`sxtwl` 在 3.14 上无法编译，故改用纯 Python 实现）
-- 法定假日在挂载的 `calendar.db`；首次空表会写入 2024–2026 bootstrap，之后用 ops API（`OPS_TOKEN` / `X-Ops-Token`）维护
+- 运行时法定假日的唯一真相源是挂载的 `calendar.db`（勿提交进仓库）
+- `backend/app/data/holidays.bootstrap.json` **仅**在首次启动且 `holiday_days` 为空时灌入；库里一旦有行就不再读取。改 json **不会**改线上假日
+- 新增或修改假日年份：用 ops API（`OPS_TOKEN` / `X-Ops-Token`），或直接改挂载的 `calendar.db`。不要编造尚未公布的年份

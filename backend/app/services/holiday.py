@@ -141,6 +141,7 @@ def _bootstrap_rows() -> list[tuple[str, str, str]]:
     return rows
 
 
+# bootstrap json 只在 holiday_days 为空时灌入；有行后永不读取，改 json 不影响线上。真相源是 calendar.db。
 def bootstrap_holidays_if_empty() -> None:
     """仅当 holiday_days 为空时写入 2024–2026 bootstrap，已有行则不动。"""
     rows = _bootstrap_rows()
