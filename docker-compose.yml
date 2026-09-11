@@ -5,8 +5,7 @@ services:
       DB_PATH: /data/calendar.db
       OPS_TOKEN: ${OPS_TOKEN:-}
     volumes:
-      # 挂载数据目录；空库首次启动灌入 2024–2026。之后用 ops API（X-Ops-Token），勿提交 sqlite
-      - ${CALENDAR_DATA:-./backend/data}:/data
+      - /root/calendar_data:/data
     expose:
       - "9000"
     restart: unless-stopped
