@@ -20,6 +20,7 @@ from app.services.holiday import (
     holiday_mtime,
     holiday_updated,
     holiday_years,
+    list_holiday_days,
 )
 from app.services.jieqi import (
     JIEQI_24,
@@ -68,6 +69,81 @@ def _fmt_range(start: date, end: date) -> str:
 
 def _fmt_dates(dates: list[date]) -> str:
     return "、".join(f"{d.month}月{d.day}日" for d in dates)
+
+
+def _cn_join(names: list[str]) -> str:
+    uniq = list(dict.fromkeys(name for name in names if name))
+    if uniq == []:
+        return ""
+    if len(uniq) == 1:
+        return uniq[0]
+    return "、".join(uniq[:-1]) + "与" + uniq[-1]
+
+
+_NOTABLE_NODES = (
+    "春节",
+    "中秋",
+    "国庆",
+    "端午",
+    "清明",
+    "元旦",
+    "劳动节",
+    "除夕",
+    "元宵",
+    "七夕",
+    "重阳",
+)
+
+
+def _month_meta(
+    year: int,
+    month: int,
+    cal: dict,
+    month_terms: list,
+) -> tuple[str, str]:
+    festival_days: list[tuple[str, int]] = []
+    for week in cal["weeks"]:
+        for cell in week:
+            if cell.isCurrentMonth is False or cell.festival is None:
+                continue
+            festival_days.append((cell.festival, cell.day))
+
+    holiday_names: list[str] = []
+    holiday_first: dict[str, int] = {}
+    for row in list_holiday_days(year):
+        if row["kind"] != "holiday" or row["name"] == "":
+            continue
+        day = date.fromisoformat(row["date"])
+        if day.month != month:
+            continue
+        if row["name"] not in holiday_first:
+            holiday_first[row["name"]] = day.day
+            holiday_names.append(row["name"])
+
+    notable: tuple[str, int] | None = None
+    for name in _NOTABLE_NODES:
+        fest = next((day for n, day in festival_days if n == name), None)
+        if fest is not None:
+            notable = (name, fest)
+            break
+        hol = next((day for n, day in holiday_first.items() if name == n or name in n), None)
+        if hol is not None:
+            notable = (name, hol)
+            break
+
+    title = f"{year}年{month}月公历农历日历 - 万年历"
+    if notable is not None:
+        title = f"{year}年{month}月公历农历日历（{notable[0]}{month}月{notable[1]}日）- 万年历"
+
+    names = holiday_names + [term.name for term in month_terms]
+    if names == []:
+        names = [n for n, _ in festival_days]
+    joined = _cn_join(names)
+    if joined:
+        description = f"{year}年{month}月公历农历对照，本月有{joined}。"
+    else:
+        description = f"{year}年{month}月公历农历对照，农历{cal['lunarYearMonth']}。"
+    return title, description
 
 
 def _breadcrumb_json(items: list[tuple[str, str]]) -> str:
@@ -379,8 +455,8 @@ async def year_page(request: Request, year: int) -> HTMLResponse:
     return _page(
         request,
         template="year.html",
-        title=f"{year}年公历农历日历 - 万年历",
-        description=f"{year}年全年公历农历对照，含法定节假日、调休、传统节日与二十四节气。",
+        title=f"{year}年公历农历对照表 - 万年历",
+        description=f"{year}年全年公历农历对照，含该年节假日与二十四节气。",
         path=f"/y/{year}",
         heading=f"{year}年公历农历日历",
         year=year,
@@ -415,6 +491,7 @@ async def month_page(request: Request, year: int, month: int) -> HTMLResponse:
             if cell.isCurrentMonth and cell.festival
         }
     )
+    title, description = _month_meta(year, month, cal, month_terms)
     faqs = [
         (
             f"{year}年{month}月公历农历怎么对照？",
@@ -446,8 +523,8 @@ async def month_page(request: Request, year: int, month: int) -> HTMLResponse:
     return _page(
         request,
         template="month.html",
-        title=f"{year}年{month}月公历农历日历 - 万年历",
-        description=f"{year}年{month}月公历农历对照，{cal['lunarYearMonth']}，含节假日、调休与节气。",
+        title=title,
+        description=description,
         path=f"/y/{year}/m/{month}",
         heading=f"{year}年{month}月公历农历",
         year=year,
@@ -473,10 +550,7 @@ async def jieqi_year_page(request: Request, year: int) -> HTMLResponse:
     _require_year(year)
     terms = get_jieqi_year(year)
     faqs = _jieqi_year_faqs(year, terms)
-    description = (
-        f"{year}年二十四节气时间表，列出小寒至冬至共 {len(terms)} 个节气的"
-        "公历交节日期与北京时间。"
-    )
+    description = f"{year}年二十四节气交节时间表，按北京时间列出各节气交节时刻。"
     lead = f"{year}年二十四节气共 {len(terms)} 个，下表为各节气交节时间（北京时间）。"
     return _page(
         request,
@@ -593,14 +667,14 @@ async def fangjia_page(request: Request, year: int) -> HTMLResponse:
             f"{year}年放假安排含{len(periods)}个假期，月历标出法定节假日与调休补班。"
             "以下按国务院已公布安排整理。"
         )
-        description = f"{year}年放假安排与调休日历，含假期表、月历标注和调休上班日。"
+        description = f"{year}年放假安排日历，列出法定节假日放假区间与调休上班日。"
     else:
         lead = f"{year}年国务院办公厅放假安排尚未录入本站，请以官方通知为准。"
-        description = f"{year}年放假安排（待公布）与调休日历。"
+        description = f"{year}年放假安排日历（含调休），国务院通知公布后更新。"
     response = _page(
         request,
         template="fangjia.html",
-        title=f"{year}年放假安排与调休日历 - 万年历",
+        title=f"{year}年放假安排日历（含调休）- 万年历",
         description=description,
         path=f"/fangjia/{year}",
         heading=f"{year}年放假安排与调休",
