@@ -44,7 +44,11 @@ def test_year_page() -> None:
     assert "FAQPage" in text
     assert "BreadcrumbList" in text
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/y/2026"
-    assert "公历农历对照" in _attr(text, 'name="description" content="')
+    year_desc = _attr(text, 'name="description" content="')
+    assert "公历农历对照" in year_desc
+    assert year_desc == _attr(text, 'property="og:description" content="')
+    assert _attr(text, 'property="og:title" content="') == _title(text)
+    assert _title(text) == "2026年公历农历对照表 - 万年历"
     assert 'class="page-main"' in text
     assert 'href="/seo.css?v=20260907a"' in text
     assert 'src="/logo.svg"' in text
@@ -177,6 +181,12 @@ def test_homepage_pixel_icons_and_grid() -> None:
     assert "holiday-bar__sub" in page
     assert ".holiday-bar__main {\n  display: flex;\n  flex-direction: row;" in css
     index = (root / "frontend" / "index.html").read_text(encoding="utf-8")
+    assert _title(index) == "万年历｜公历农历对照表（节假日·二十四节气）"
+    home_desc = _attr(index, 'name="description" content="')
+    assert home_desc == "公历农历对照万年历，标注节假日与二十四节气。"
+    assert _attr(index, 'property="og:title" content="') == _title(index)
+    assert _attr(index, 'property="og:description" content="') == home_desc
+    assert "美萍" not in index
     assert 'property="og:image" content="https://wannianli.site/logo.svg"' in index
     assert '<h1 className="site-name">万年历</h1>' in page
     assert ".day-cell__lunar--term {\n  color: var(--term);\n  font-weight: 650;" in css
@@ -203,6 +213,24 @@ def test_month_page_september_2026() -> None:
     assert "白露" in text or "秋分" in text
     assert "查看" not in text
     assert "/y/jump" not in text
+    assert _title(text) == "2026年9月公历农历日历（中秋9月25日）- 万年历"
+    month_desc = _attr(text, 'name="description" content="')
+    assert month_desc == _attr(text, 'property="og:description" content="')
+    assert "中秋" in month_desc
+    assert "白露" in month_desc or "秋分" in month_desc
+    assert "含节假日、调休与节气" not in month_desc
+    assert "。" in month_desc
+    assert month_desc.count("。") == 1
+
+
+def test_month_page_meta_uses_month_data() -> None:
+    july = client.get("/y/2026/m/7").text
+    july_desc = _attr(july, 'name="description" content="')
+    assert "含节假日、调休与节气" not in july_desc
+    assert "小暑" in july_desc or "大暑" in july_desc
+    assert "中秋" not in july_desc
+    assert _title(july) == "2026年7月公历农历日历 - 万年历"
+    assert _attr(july, 'property="og:title" content="') == _title(july)
 
 
 def test_fangjia_2026() -> None:
@@ -211,7 +239,12 @@ def test_fangjia_2026() -> None:
     text = response.text
     assert "放假" in text
     assert "调休" in text
-    assert "<title>" in text and "放假" in text[text.find("<title>") : text.find("</title>")]
+    assert _title(text) == "2026年放假安排日历（含调休）- 万年历"
+    fangjia_desc = _attr(text, 'name="description" content="')
+    assert "放假安排" in fangjia_desc and "调休" in fangjia_desc
+    assert fangjia_desc == _attr(text, 'property="og:description" content="')
+    assert fangjia_desc.count("。") == 1
+    assert _title(client.get("/fangjia/2025").text) == "2025年放假安排日历（含调休）- 万年历"
     assert "春节" in text
     assert "2月15日" in text
     assert "班" in text
@@ -242,7 +275,11 @@ def test_jieqi_2026_table_and_term() -> None:
     assert "/jieqi/2026/lichun" in text
     desc = _attr(text, 'name="description" content="')
     og = _attr(text, 'property="og:description" content="')
-    assert desc.startswith("2026年二十四节气时间表")
+    assert _title(text) == "2026年二十四节气时间表 - 万年历"
+    assert "二十四节气" in _title(text)
+    assert desc.startswith("2026年二十四节气")
+    assert "北京时间" in desc
+    assert "交节" in desc
     assert "立春交节" not in desc
     assert og == desc
     assert _attr(text, 'rel="canonical" href="') == "https://wannianli.site/jieqi/2026"
@@ -269,15 +306,17 @@ def test_topic_pages_are_not_cross_wired() -> None:
     fangjia = client.get("/fangjia/2026").text
     jieqi = client.get("/jieqi/2026").text
     term = client.get("/jieqi/2026/lichun").text
-    assert _title(year) == "2026年公历农历日历 - 万年历"
-    assert _title(month) == "2026年9月公历农历日历 - 万年历"
-    assert _title(fangjia) == "2026年放假安排与调休日历 - 万年历"
+    assert _title(year) == "2026年公历农历对照表 - 万年历"
+    assert _title(month) == "2026年9月公历农历日历（中秋9月25日）- 万年历"
+    assert _title(fangjia) == "2026年放假安排日历（含调休）- 万年历"
     assert _title(jieqi) == "2026年二十四节气时间表 - 万年历"
     assert _title(term).startswith("2026年立春交节时间")
     assert "放假" not in _attr(jieqi, 'name="description" content="')
     assert "公历农历对照" not in _attr(jieqi, 'name="description" content="')
     assert "二十四节气时间表" not in _attr(year, 'name="description" content="')
     assert "二十四节气时间表" not in _attr(term, 'name="description" content="')
+    assert "美萍" not in year + month + fangjia + jieqi + term
+    assert _title(client.get("/jieqi/2025").text) == "2025年二十四节气时间表 - 万年历"
     assert {
         _attr(page, 'rel="canonical" href="')
         for page in (year, month, fangjia, jieqi, term)
